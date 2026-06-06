@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERRY // NEXUS REAPER v4.0</title>
+    <title>TERRY // NEXUS REAPER v4.5</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
             --bg: #020202;
@@ -51,19 +52,26 @@
         }
         @keyframes pulse-glow { 0%, 100% { text-shadow: 0 0 4px var(--accent-dim); opacity: 0.8; } 50% { text-shadow: 0 0 15px var(--accent-glow); opacity: 1; } }
 
-        /* HEADER */
+        /* HEADER & PROFILE */
         .top-bar {
             width: 100%; display: flex; justify-content: space-between; align-items: center;
             border: 1px solid var(--border); border-bottom: 2px solid var(--accent);
             padding: 12px 20px; margin-bottom: 12px; background: rgba(5, 2, 2, 0.95);
         }
         .title { font-size: 1.05rem; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 8px var(--accent); cursor: pointer; }
-        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+        
+        .profile-badge {
+            background: rgba(0, 0, 0, 0.6); border: 1px dashed var(--border); padding: 4px 10px;
+            font-size: 0.7rem; display: flex; gap: 8px; align-items: center;
+        }
+        .profile-badge span { color: var(--neon-green); font-weight: bold; text-shadow: 0 0 4px rgba(0,255,102,0.4); }
+
         .settings-btn { background: transparent; border: 1px solid var(--border); color: #fff; padding: 4px 12px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
         .settings-btn:hover { border-color: var(--accent); background: var(--accent-dim); text-shadow: 0 0 5px var(--accent); }
         .status { background: rgba(255, 0, 60, 0.15); border: 1px solid var(--accent); padding: 4px 12px; font-size: 0.65rem; letter-spacing: 2px; }
 
-        /* STATS CARDS WITH PROGRESS BARS */
+        /* STATS CARDS */
         .overall-panel {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 15px; margin-bottom: 12px; width: 100%; max-width: 1600px; margin-left: auto; margin-right: auto;
@@ -74,12 +82,16 @@
         .overall-card .value span { color: var(--accent); text-shadow: 0 0 5px var(--accent); font-size: 0.8rem; }
         .stat-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); margin-top: 8px; position: relative; overflow: hidden; }
         .stat-bar-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 5px var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .weapon-icon-display { font-size: 0.8rem; color: var(--accent); opacity: 0.7; font-weight: normal; margin-left: 8px; letter-spacing: 0; }
 
-        /* CONTROLS HUD */
+        /* CONTROLS HUD & OCR DRAG ZONE */
         .hud-control-container {
-            display: flex; flex-direction: column; gap: 12px; background: var(--panel); border: 1px solid var(--border); padding: 15px; backdrop-filter: var(--panel-blur); max-width: 1600px; width: 100%; margin: 0 auto 12px auto;
+            display: grid; grid-template-columns: 2fr 1fr; gap: 15px; background: var(--panel);
+            border: 1px solid var(--border); padding: 15px; backdrop-filter: var(--panel-blur);
+            max-width: 1600px; width: 100%; margin: 0 auto 12px auto;
         }
+        @media(max-width: 900px) { .hud-control-container { grid-template-columns: 1fr; } }
+        
+        .hud-left-side { display: flex; flex-direction: column; gap: 12px; }
         .hud-top-line { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed rgba(255,0,60,0.12); padding-bottom: 10px; }
 
         .tab-nav { display: flex; gap: 6px; }
@@ -100,13 +112,27 @@
         button.action-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 0 25px; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: all 0.2s; }
         button.action-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 10px var(--accent); }
 
+        /* ИНЖЕКТОР СКРИНШОТОВ (OCR ZONE) */
+        .ocr-drop-zone {
+            border: 1px dashed var(--border); background: rgba(0, 0, 0, 0.4);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 10px; text-align: center; cursor: pointer; position: relative; transition: all 0.3s;
+        }
+        .ocr-drop-zone:hover, .ocr-drop-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
+        .ocr-drop-zone .title-ocr { font-size: 0.7rem; font-weight: bold; color: var(--text); letter-spacing: 1px; margin-bottom: 5px; }
+        .ocr-drop-zone .subtitle-ocr { font-size: 0.55rem; color: var(--text-dim); }
+        .ocr-progress-inner {
+            position: absolute; bottom: 0; left: 0; height: 3px; background: var(--neon-green);
+            width: 0%; transition: width 0.1s ease; box-shadow: 0 0 8px var(--neon-green);
+        }
+
         /* MAIN CONTAINER VIEWPORTS */
         .main-container { flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         .network-viewport { position: relative; flex: 1; background: #010101; border: 1px solid var(--border); overflow: hidden; display: block; }
         canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         canvas:active { cursor: grabbing; }
 
-        /* СТАРЫЙ ИНТЕРФЕЙС СТРОЧКАМИ (CLASSIC LINES VIEW) */
+        /* CLASSIC LINES VIEW */
         .classic-lines-viewport {
             position: absolute; top:0; left:0; width:100%; height:100%; background:#020202; border: 1px solid var(--border);
             padding: 20px; overflow-y: auto; display: none; box-shadow: inset 0 0 40px rgba(0,0,0,0.9); z-index: 5;
@@ -119,12 +145,11 @@
         .delete-line-btn:hover { background: var(--accent); color: #000; }
         .empty-classic { text-align: center; color: #444; padding: 40px; font-size: 0.8rem; letter-spacing: 2px; }
 
-        /* GLITCH HORIZONTAL OVERLAY BAND */
         #glitch-overlay { position: absolute; left: 0; width: 100%; height: 4px; background: rgba(255, 0, 60, 0.4); box-shadow: 0 0 15px var(--accent); display: none; pointer-events: none; z-index: 99; }
 
-        /* LIVE ACTIVITY TERMINAL LOG */
+        /* LIVE ACTIVITY LOG */
         .terminal-log-panel {
-            position: absolute; bottom: 12px; left: 15px; width: 320px; height: 100px;
+            position: absolute; bottom: 12px; left: 15px; width: 340px; height: 100px;
             background: rgba(0,0,0,0.85); border: 1px solid #151515; border-left: 2px solid var(--accent);
             padding: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;
             font-size: 0.65rem; line-height: 1.4; color: #888; pointer-events: none; z-index: 8;
@@ -133,7 +158,7 @@
         .term-line span { color: var(--accent); }
         @keyframes term-fade { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* MODAL DIALOGS (SETTINGS) */
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
             backdrop-filter: blur(5px); z-index: 200000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
@@ -146,9 +171,6 @@
         .modal-card h3 { font-size: 1rem; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; letter-spacing: 2px; }
         .setting-row { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
         .setting-row label { font-size: 0.65rem; color: #888; letter-spacing: 1px; }
-        .setting-row select, .setting-row input[type="range"] { width: 100%; background: #000; border: 1px solid #222; padding: 8px; color: #fff; }
-        .setting-row input[type="range"] { appearance: none; height: 4px; background: #222; outline: none; }
-        .setting-row input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: var(--accent); cursor: pointer; box-shadow: 0 0 5px var(--accent); }
         .close-modal-btn { background: transparent; border: 1px solid #333; color: #fff; width: 100%; padding: 8px; margin-top: 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
         .close-modal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -182,7 +204,7 @@
 
     <div id="boot-screen">
         <div class="boot-loader">
-            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.0...<br></div>
+            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.5...<br></div>
             <div class="progress-bar-container"><div class="progress-fill" id="boot-progress"></div></div>
         </div>
     </div>
@@ -202,8 +224,9 @@
     </div>
 
     <div class="top-bar">
-        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.0</div>
+        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.5</div>
         <div class="header-actions">
+            <div class="profile-badge">OPERATIVE: <span id="profile-display-name">DARK_CRYPTO</span></div>
             <button class="settings-btn" onclick="toggleModal(true)">[ SETTINGS_ ]</button>
             <div class="status">[ ONLINE ]</div>
         </div>
@@ -230,41 +253,50 @@
     </div>
 
     <div class="hud-control-container">
-        <div class="hud-top-line">
-            <div class="tab-nav">
-                <button class="tab-btn active" id="tab-dm" onclick="switchTab('dm')">DM MATRIX</button>
-                <button class="tab-btn" id="tab-vzp" onclick="switchTab('vzp')">VZP PATROL</button>
-                <button class="tab-btn" id="tab-capt" onclick="switchTab('capt')">CAPT ZONE</button>
+        <div class="hud-left-side">
+            <div class="hud-top-line">
+                <div class="tab-nav">
+                    <button class="tab-btn active" id="tab-dm" onclick="switchTab('dm')">DM MATRIX</button>
+                    <button class="tab-btn" id="tab-vzp" onclick="switchTab('vzp')">VZP PATROL</button>
+                    <button class="tab-btn" id="tab-capt" onclick="switchTab('capt')">CAPT ZONE</button>
+                </div>
+                <div class="timer-box" id="timer-box">
+                    <div class="timer-display" id="timer-display">00:00</div>
+                    <input type="number" id="custom-minutes" class="timer-input" placeholder="MIN">
+                    <button class="timer-btn" onclick="startCustomTimer()" style="color: var(--neon-green);">START</button>
+                    <button class="timer-btn" onclick="stopTimer()" style="color: var(--accent);">RESET</button>
+                </div>
             </div>
-            <div class="timer-box" id="timer-box">
-                <div class="timer-display" id="timer-display">00:00</div>
-                <input type="number" id="custom-minutes" class="timer-input" placeholder="MIN">
-                <button class="timer-btn" onclick="startCustomTimer()" style="color: var(--neon-green);">START</button>
-                <button class="timer-btn" onclick="stopTimer()" style="color: var(--accent);">RESET</button>
+
+            <div class="input-area">
+                <div id="panel-dm" class="input-group">
+                    <select id="dm-weapon">
+                        <option value="SPECIAL RIFLE">SPECIAL RIFLE ︻╦╤─</option>
+                        <option value="REVOLVER">REVOLVER ▄︻デ╤═─</option>
+                    </select>
+                    <select id="dm-type" onchange="updateDmFields()"><option value="FULL DM">FULL DM</option><option value="1X1 DM">1X1 DM</option></select>
+                    <div id="dm-dynamic-container" style="display: flex; flex:1;"><input type="number" id="dm-damage" placeholder="DAMAGE"></div>
+                    <button class="action-btn" onclick="addDmLog()">+</button>
+                </div>
+                <div id="panel-vzp" class="input-group" style="display:none;">
+                    <input type="text" id="vzp-server" placeholder="SERVER NAME" oninput="this.value = this.value.toUpperCase()">
+                    <input type="number" id="vzp-kills" placeholder="KILLS"><input type="number" id="vzp-deaths" placeholder="DEATHS"><input type="number" id="vzp-damage" placeholder="DAMAGE">
+                    <button class="action-btn" onclick="addVzpLog()">+</button>
+                </div>
+                <div id="panel-capt" class="input-group" style="display:none;">
+                    <input type="text" id="capt-server" placeholder="SERVER" oninput="this.value = this.value.toUpperCase()">
+                    <input type="number" id="capt-kills" placeholder="KILLS"><input type="number" id="capt-deaths" placeholder="DEATHS"><input type="number" id="capt-damage" placeholder="DAMAGE">
+                    <input type="number" id="capt-hs" placeholder="HS %" max="100"><input type="number" id="capt-hit" placeholder="HIT %" max="100">
+                    <button class="action-btn" onclick="addCaptLog()">+</button>
+                </div>
             </div>
         </div>
 
-        <div class="input-area">
-            <div id="panel-dm" class="input-group">
-                <select id="dm-weapon">
-                    <option value="SPECIAL RIFLE">SPECIAL RIFLE ︻╦╤─</option>
-                    <option value="REVOLVER">REVOLVER ▄︻デ╤═─</option>
-                </select>
-                <select id="dm-type" onchange="updateDmFields()"><option value="FULL DM">FULL DM</option><option value="1X1 DM">1X1 DM</option></select>
-                <div id="dm-dynamic-container" style="display: flex; flex:1;"><input type="number" id="dm-damage" placeholder="DAMAGE"></div>
-                <button class="action-btn" onclick="addDmLog()">+</button>
-            </div>
-            <div id="panel-vzp" class="input-group" style="display:none;">
-                <input type="text" id="vzp-server" placeholder="SERVER NAME" oninput="this.value = this.value.toUpperCase()">
-                <input type="number" id="vzp-kills" placeholder="KILLS"><input type="number" id="vzp-deaths" placeholder="DEATHS"><input type="number" id="vzp-damage" placeholder="DAMAGE">
-                <button class="action-btn" onclick="addVzpLog()">+</button>
-            </div>
-            <div id="panel-capt" class="input-group" style="display:none;">
-                <input type="text" id="capt-server" placeholder="SERVER" oninput="this.value = this.value.toUpperCase()">
-                <input type="number" id="capt-kills" placeholder="KILLS"><input type="number" id="capt-deaths" placeholder="DEATHS"><input type="number" id="capt-damage" placeholder="DAMAGE">
-                <input type="number" id="capt-hs" placeholder="HS %" max="100"><input type="number" id="capt-hit" placeholder="HIT %" max="100">
-                <button class="action-btn" onclick="addCaptLog()">+</button>
-            </div>
+        <div class="ocr-drop-zone" id="ocr-zone" onclick="document.getElementById('ocr-file-input').click()">
+            <div class="title-ocr">[ DROP_DM_SCREENSHOT_HERE ]</div>
+            <div class="subtitle-ocr" id="ocr-status-text">ИЛИ КЛИКНИ / CTRL+V ИЗ БУФЕРА</div>
+            <input type="file" id="ocr-file-input" style="display:none;" accept="image/*" onchange="handleOcrFile(this.files[0])">
+            <div class="ocr-progress-inner" id="ocr-progress-bar"></div>
         </div>
     </div>
 
@@ -293,6 +325,10 @@
         <div class="modal-card">
             <h3>[ SETTINGS_MATRIX_CONTROL ]</h3>
             <div class="setting-row">
+                <label>OPERATIVE NICKNAME (PROFILE)</label>
+                <input type="text" id="setting-username" value="DARK_CRYPTO" oninput="this.value = this.value.toUpperCase()">
+            </div>
+            <div class="setting-row">
                 <label>INTERFACE STRUCTURE</label>
                 <select id="setting-ui" onchange="applySettings()"><option value="mesh">WEB_MESH GRAPHICS (NEW)</option><option value="classic">CLASSIC_LINES TABLE (OLD)</option></select>
             </div>
@@ -314,26 +350,21 @@
 
     <script>
         let db = JSON.parse(localStorage.getItem('cyberStatsDB')) || { dm: [], vzp: [], capt: [] };
-        let config = JSON.parse(localStorage.getItem('cyberHudConfig')) || { ui: 'mesh', theme: 'red', volFx: 40, volBg: 15 };
+        let config = JSON.parse(localStorage.getItem('cyberHudConfig')) || { ui: 'mesh', theme: 'red', volFx: 40, volBg: 15, username: 'DARK_CRYPTO' };
         let currentTab = 'dm'; let countdownInterval = null;
 
         const canvas = document.getElementById('netCanvas'); const ctx = canvas.getContext('2d');
         let nodes = []; let links = []; let hoveredNode = null; let draggedNode = null;
         let transform = { x: 0, y: 0, zoom: 1 }; let isPanning = false; let panStart = { x: 0, y: 0 };
-        let dataPackets = []; let clickParticles = []; let pulseRadius = 0;
-        let mouseGlobal = { x: 0, y: 0 };
+        let dataPackets = []; let pulseRadius = 0; let mouseGlobal = { x: 0, y: 0 };
 
-        // ИНЖЕКТОР СИМУЛЯЦИИ КОДА
         let hackerInterval = null; let keysPressed = {};
         const hackerPhrases = [
             "CONNECTING TO MAJESTIC SECURE PROTOCOL...", "BYPASSING ANTICHEAT SHIELD [STATUS: SUCCESS]",
             "DECRYPTING MATCH PACKETS...", "INJECTING TERRY_NEXUS_REAPER COMPONENT...",
-            "LOCAL STORAGE DATABASE FETCHING... [OK]", "SCANNING ACTIVE NODE PORTS...",
-            "WARNING: SYSTEM REAPER ENGAGED.", "DUMPING COMBINED DAMAGE STATISTICS...",
-            "XREF GRID RE-INDEXING...", "PARSING REVOLVER HITBOX COEFFICIENT..."
+            "LOCAL STORAGE DATABASE FETCHING... [OK]", "SCANNING ACTIVE NODE PORTS..."
         ];
 
-        // SOUND ARCHITECTURE
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let bgHumNode = null; let bgHumGain = null;
 
@@ -392,14 +423,132 @@
             }
         }
 
-        // BOOT SYSTEM
+        // ДВИЖОК СКАНЕРА СКРИНШОТОВ (OCR TESSERACT ENGINE)
+        async function handleOcrFile(file) {
+            if (!file) return;
+            playSound('click');
+            const statusText = document.getElementById('ocr-status-text');
+            const progressBar = document.getElementById('ocr-progress-bar');
+            statusText.innerText = "[CORE_ANALYZING_IMAGE...]";
+            pushLog('OCR_ENGINE', 'STARTING IMAGE MATRIX EXTRACTION');
+
+            try {
+                const worker = await Tesseract.createWorker('rus+eng');
+                
+                // Отслеживание прогресса
+                worker.logger = (m) => {
+                    if (m.status === 'recognizing text') {
+                        let percent = Math.floor(m.progress * 100);
+                        progressBar.style.width = percent + '%';
+                        statusText.innerText = `DECRYPTING: ${percent}%`;
+                    }
+                };
+
+                const ret = await worker.recognize(file);
+                const text = ret.data.text.toUpperCase();
+                await worker.terminate();
+
+                progressBar.style.width = '0%';
+                statusText.innerText = "ИЛИ КЛИКНИ / CTRL+V ИЗ БУФЕРА";
+
+                // Парсим строки
+                let lines = text.split('\n');
+                let targetUser = config.username.toUpperCase().replace('_', '');
+                let foundLine = null;
+                let totalLinesCount = 0;
+
+                // Считаем сколько всего игроков распозналось, чтобы понять тип матча
+                lines.forEach(l => {
+                    let clean = l.replace(/[\s_]/g, '');
+                    if (clean.length > 3 && !clean.includes('DMGLOW') && !clean.includes('RELOAD')) {
+                        totalLinesCount++;
+                    }
+                    if (clean.includes(targetUser)) {
+                        foundLine = l;
+                    }
+                });
+
+                if (!foundLine) {
+                    // Страховочный поиск по ключевым кускам слова CRYPTO
+                    foundLine = lines.find(l => l.includes('CRYP') || l.includes('DAR'));
+                }
+
+                if (foundLine) {
+                    // Извлекаем все числа из строки игрока
+                    let numbers = foundLine.match(/\d+/g);
+                    if (numbers && numbers.length >= 3) {
+                        let kills = parseInt(numbers[0]) || 0;
+                        let hitPercent = parseInt(numbers[1]) || 0;
+                        let hsPercent = parseInt(numbers[2]) || 0;
+                        let damage = parseInt(numbers[numbers.length - 1]) || 0;
+
+                        // Автоопределение типа DM матча по количеству строк на скрине
+                        let inferredType = totalLinesCount > 3 ? "FULL DM" : "1X1 DM";
+
+                        // Пушим в базу
+                        db.dm.push({
+                            id: Math.random().toString(36).substring(2, 11),
+                            date: new Date().toLocaleDateString('ru-RU'),
+                            time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}),
+                            weapon: "SPECIAL RIFLE",
+                            type: inferredType,
+                            damage: damage,
+                            kills: kills
+                        });
+
+                        playSound('success');
+                        triggerGlitchEvent();
+                        pushLog('OCR_SUCCESS', `EXTRACTED: ${kills} KILLS | ${damage} DMG | MODE: ${inferredType}`);
+                        saveDB();
+                    } else {
+                        alert("СТРОКА НАЙДЕНА, НО НЕ УДАЛОСЬ РАЗОБРАТЬ ЦИФРЫ СТАТИСТИКИ.");
+                        pushLog('OCR_ERROR', 'FAILED TO PARSE NUMERIC DATA CHUNKS');
+                    }
+                } else {
+                    alert(`НИК ${config.username} НЕ НАЙДЕН НА СКРИНШОТЕ. ПРОВЕРЬТЕ НАСТРОЙКИ ПРОФИЛЯ.`);
+                    pushLog('OCR_FAIL', 'USER TARGET LOG NOT FOUND IN CAPTURED TEXT');
+                }
+
+            } catch (err) {
+                console.error(err);
+                statusText.innerText = "ОШИБКА РАСПОЗНАВАНИЯ";
+                pushLog('OCR_CRITICAL', 'ENGINE CORE ERROR');
+            }
+        }
+
+        // Поддержка Paste (Ctrl+V) для скриншотов
+        window.addEventListener('paste', e => {
+            let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let index in items) {
+                let item = items[index];
+                if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
+                    handleOcrFile(item.getAsFile());
+                }
+            }
+        });
+
+        // Drag and drop логика
+        const dropZone = document.getElementById('ocr-zone');
+        ['dragenter', 'dragover'].forEach(name => {
+            dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }, false);
+        });
+        ['dragleave', 'drop'].forEach(name => {
+            dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+            let dt = e.dataTransfer; let files = dt.files;
+            if(files.length > 0) handleOcrFile(files[0]);
+        });
+
+
+        // DOM INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             const logsContainer = document.getElementById('boot-logs'); const progressFill = document.getElementById('boot-progress');
-            const lines = ["NEXUS CORE ENGINE v4.0 CAPTURED.", "GRID COORDINATE RADAR SYSTEM ACTIVATED.", "HOTKEY BIND_ENGINE INJECTED [L+T].", "CREATING BLACK_FILE EXPORTER..."];
+            const lines = ["NEXUS CORE ENGINE v4.5 CAPTURED.", "OCR INTEL INJECTOR MOUNTED.", "HOTKEY BIND_ENGINE INJECTED [L+T]."];
             let lineIdx = 0, prog = 0;
             let iv = setInterval(() => {
                 if (lineIdx < lines.length) { logsContainer.innerHTML += lines[lineIdx] + "<br>"; lineIdx++; }
-                prog += 25; progressFill.style.width = prog + "%";
+                prog += 34; progressFill.style.width = prog + "%";
                 if (prog >= 100) {
                     clearInterval(iv);
                     setTimeout(() => {
@@ -413,12 +562,10 @@
             document.getElementById('setting-theme').value = config.theme;
             document.getElementById('volume-fx').value = config.volFx;
             document.getElementById('volume-bg').value = config.volBg;
-            applyThemeStyles(); renderActiveView();
+            document.getElementById('setting-username').value = config.username;
+            document.getElementById('profile-display-name').innerText = config.username;
             
-            document.querySelectorAll('input, select').forEach(el => {
-                el.addEventListener('input', () => playSound('click'));
-                el.addEventListener('focus', () => playSound('click'));
-            });
+            applyThemeStyles(); renderActiveView();
         });
 
         function pushLog(node, msg) {
@@ -434,6 +581,9 @@
             config.theme = document.getElementById('setting-theme').value;
             config.volFx = parseInt(document.getElementById('volume-fx').value);
             config.volBg = parseInt(document.getElementById('volume-bg').value);
+            config.username = document.getElementById('setting-username').value.trim() || 'DARK_CRYPTO';
+            
+            document.getElementById('profile-display-name').innerText = config.username;
             localStorage.setItem('cyberHudConfig', JSON.stringify(config));
             if (bgHumGain) { bgHumGain.gain.setValueAtTime(config.volBg / 1000, audioCtx.currentTime); }
             applyThemeStyles(); renderActiveView();
@@ -477,7 +627,7 @@
         function purgeCurrentGraph() {
             if (confirm(`WIPE ALL LOGS INSIDE ${currentTab.toUpperCase()} PROTOCOL?`)) {
                 db[currentTab] = []; document.getElementById('osintTooltip').style.display = 'none';
-                pushLog('SECURITY', `PURGED GRID DATA FOR ${currentTab}`); playSound('wipe'); saveDB();
+                playSound('wipe'); saveDB();
             }
         }
 
@@ -491,9 +641,7 @@
             transform = { x: 0, y: 0, zoom: 1 }; saveDB();
         }
 
-        function getWeaponIcon(weapon) {
-            return weapon === 'SPECIAL RIFLE' ? '︻╦╤─' : '▄︻デ╤═─';
-        }
+        function getWeaponIcon(weapon) { return weapon === 'SPECIAL RIFLE' ? '︻╦╤─' : '▄︻デ╤═─'; }
 
         function updateDmFields() {
             const m = document.getElementById('dm-type').value;
@@ -504,9 +652,7 @@
             const weapon = document.getElementById('dm-weapon').value; const type = document.getElementById('dm-type').value;
             let damage = parseInt(document.getElementById('dm-damage')?.value) || 0; let kills = parseInt(document.getElementById('dm-kills')?.value) || 0;
             db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), weapon, type, damage, kills });
-            playSound('success'); triggerGlitchEvent(); pushLog('DM_STORE', `ADDED RECORD -> ${weapon}`); saveDB();
-            if(document.getElementById('dm-damage')) document.getElementById('dm-damage').value = '';
-            if(document.getElementById('dm-kills')) document.getElementById('dm-kills').value = '';
+            playSound('success'); triggerGlitchEvent(); saveDB();
         }
 
         function addVzpLog() {
@@ -514,8 +660,7 @@
             const deaths = parseInt(document.getElementById('vzp-deaths').value) || 0; const damage = parseInt(document.getElementById('vzp-damage').value) || 0;
             if(!server) return;
             db.vzp.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), server, kills, deaths, damage });
-            playSound('success'); triggerGlitchEvent(); pushLog('VZP_STORE', `NODE '${server}' PACKET SENT`); saveDB();
-            document.getElementById('vzp-server').value=''; document.getElementById('vzp-kills').value=''; document.getElementById('vzp-deaths').value=''; document.getElementById('vzp-damage').value='';
+            playSound('success'); triggerGlitchEvent(); saveDB();
         }
 
         function addCaptLog() {
@@ -524,8 +669,7 @@
             const hs = document.getElementById('capt-hs').value ? document.getElementById('capt-hs').value + '%' : '0%'; const hit = document.getElementById('capt-hit').value ? document.getElementById('capt-hit').value + '%' : '0%';
             if(!server) return;
             db.capt.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), server, kills, deaths, damage, hs, hit });
-            playSound('success'); triggerGlitchEvent(); pushLog('CAPT_STORE', `CAPTURED ZONE GRID: ${server}`); saveDB();
-            document.getElementById('capt-server').value=''; document.getElementById('capt-kills').value=''; document.getElementById('capt-deaths').value=''; document.getElementById('capt-damage').value=''; document.getElementById('capt-hs').value=''; document.getElementById('capt-hit').value='';
+            playSound('success'); triggerGlitchEvent(); saveDB();
         }
 
         function deleteClassicLine(category, id) {
@@ -539,7 +683,6 @@
             db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             
-            // Расчет текстового логотипа самого популярного оружия для сводки
             let specCount = db.dm.filter(x => x.weapon === 'SPECIAL RIFLE').length;
             let revCount = db.dm.filter(x => x.weapon === 'REVOLVER').length;
             let bestWpnIcon = specCount === 0 && revCount === 0 ? '' : (specCount >= revCount ? ' ︻╦╤─' : ' ▄︻デ╤═─');
@@ -631,18 +774,12 @@
             if(config.ui !== 'mesh') return; ctx.clearRect(0, 0, canvas.width, canvas.height);
             let accentColor = document.documentElement.style.getPropertyValue('--accent').trim() || '#ff003c';
 
-            // ИНТЕРАКТИВНЫЙ ФОН: РАДАРНАЯ КООРДИНАТНАЯ СЕТКА (Пункт 5)
             ctx.save();
             ctx.strokeStyle = `${accentColor}06`; ctx.lineWidth = 1;
-            let gridSpacing = 60;
-            let offsetX = (transform.x + (mouseGlobal.x * 0.05)) % gridSpacing;
-            let offsetY = (transform.y + (mouseGlobal.y * 0.05)) % gridSpacing;
+            let gridSpacing = 60; let offsetX = (transform.x + (mouseGlobal.x * 0.05)) % gridSpacing; let offsetY = (transform.y + (mouseGlobal.y * 0.05)) % gridSpacing;
             for (let x = offsetX; x < canvas.width; x += gridSpacing) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
             for (let y = offsetY; y < canvas.height; y += gridSpacing) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-            // Центральные визирные круги радара
-            ctx.beginPath(); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 150, 0, Math.PI*2);
-            ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 300, 0, Math.PI*2);
-            ctx.stroke();
+            ctx.beginPath(); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 150, 0, Math.PI*2); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 300, 0, Math.PI*2); ctx.stroke();
             ctx.restore();
 
             ctx.save(); ctx.translate(transform.x, transform.y); ctx.scale(transform.zoom, transform.zoom);
@@ -659,10 +796,7 @@
                     let n1 = nodes[i]; let n2 = nodes[j];
                     if(n1.type === 'datapoint' && n2.type === 'datapoint') {
                         let d = Math.hypot(n2.x - n1.x, n2.y - n1.y);
-                        if(d < 110) {
-                            ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y);
-                            ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.stroke();
-                        }
+                        if(d < 110) { ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y); ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.stroke(); }
                     }
                 }
             }
@@ -674,8 +808,7 @@
 
             dataPackets.forEach(p => {
                 p.progress += p.speed; if (p.progress > 1) p.progress = 0;
-                let pkX = p.link.source.x + (p.link.target.x - p.link.source.x) * p.progress;
-                let pkY = p.link.source.y + (p.link.target.y - p.link.source.y) * p.progress;
+                let pkX = p.link.source.x + (p.link.target.x - p.link.source.x) * p.progress; let pkY = p.link.source.y + (p.link.target.y - p.link.source.y) * p.progress;
                 ctx.beginPath(); ctx.arc(pkX, pkY, 2.5, 0, Math.PI*2); ctx.fillStyle = accentColor; ctx.fill();
             });
 
@@ -693,12 +826,6 @@
                 ctx.fillStyle = n.type === 'datapoint' ? '#444' : '#fff';
                 ctx.font = '9px Consolas'; ctx.fillText(n.label, n.x + radius + 5, n.y + 3);
             });
-
-            for (let i = clickParticles.length - 1; i >= 0; i--) {
-                let p = clickParticles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.03;
-                if (p.alpha <= 0) { clickParticles.splice(i, 1); continue; }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = `${accentColor}${Math.floor(p.alpha*255).toString(16).padStart(2,'0')}`; ctx.fill();
-            }
             ctx.restore();
         }
 
@@ -735,8 +862,7 @@
                             <div class="data-row"><span class="field">DAMAGE:</span><span class="val">${data.damage} HP</span></div>`;
                 }
                 tooltip.innerHTML = html; tooltip.style.display = 'block';
-                tooltip.style.left = (e.clientX - canvas.getBoundingClientRect().left + 15) + 'px';
-                tooltip.style.top = (e.clientY - canvas.getBoundingClientRect().top + 15) + 'px';
+                tooltip.style.left = (e.clientX - canvas.getBoundingClientRect().left + 15) + 'px'; tooltip.style.top = (e.clientY - canvas.getBoundingClientRect().top + 15) + 'px';
             } else tooltip.style.display = 'none';
         });
 
@@ -747,70 +873,37 @@
             if(config.ui !== 'mesh') return; const m = getCanvasMousePos(e); let target = null;
             for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 15 && n.type === 'datapoint') { target = n; break; } }
             if (target) {
-                let idx = db[target.category].findIndex(x => x.id === target.id);
-                if(idx !== -1) db[target.category].splice(idx, 1);
-                document.getElementById('osintTooltip').style.display = 'none';
-                playSound('wipe'); pushLog('DESTROY', 'ERASED WEBMESH NODE'); saveDB();
+                let idx = db[target.category].findIndex(x => x.id === target.id); if(idx !== -1) db[target.category].splice(idx, 1);
+                document.getElementById('osintTooltip').style.display = 'none'; playSound('wipe'); saveDB();
             }
         });
 
-        // КАРТИНКА-ШАБЛОН СЕКРЕТНОГО ДОСЬЕ (Пункт 4)
         function generateBlackFileCard() {
-            playSound('success');
-            let td = 0, tk = 0, det = 0;
-            db.dm.forEach(i => { td += i.damage; tk += i.kills; });
-            db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
-            db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
+            playSound('success'); let td = 0, tk = 0, det = 0;
+            db.dm.forEach(i => { td += i.damage; tk += i.kills; }); db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; }); db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             let kd = det === 0 ? tk.toFixed(2) : (tk / det).toFixed(2);
 
-            // Создаем временный холст для рендеринга шаблона
-            const expCanvas = document.createElement('canvas'); expCanvas.width = 500; expCanvas.height = 360;
-            const eCtx = expCanvas.getContext('2d');
+            const expCanvas = document.createElement('canvas'); expCanvas.width = 500; expCanvas.height = 360; const eCtx = expCanvas.getContext('2d');
             let clr = document.documentElement.style.getPropertyValue('--accent').trim() || '#ff003c';
 
-            // Фон
             eCtx.fillStyle = '#050505'; eCtx.fillRect(0, 0, 500, 360);
-            // Сетка фона
             eCtx.strokeStyle = 'rgba(255,255,255,0.02)'; eCtx.lineWidth = 1;
             for(let x=0; x<500; x+=25){ eCtx.beginPath(); eCtx.moveTo(x,0); eCtx.lineTo(x,360); eCtx.stroke(); }
             for(let y=0; y<360; y+=25){ eCtx.beginPath(); eCtx.moveTo(0,y); eCtx.lineTo(500,y); eCtx.stroke(); }
 
-            // Внешняя кибер-рамка
             eCtx.strokeStyle = clr; eCtx.lineWidth = 2; eCtx.strokeRect(15, 15, 470, 330);
-            eCtx.fillStyle = clr; eCtx.fillRect(10, 10, 15, 4); eCtx.fillRect(10, 10, 4, 15);
-
-            // Заголовок документа
             eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText("=== CLASSIFIED CYBER INTELLIGENCE REPORT ===", 35, 45);
-            eCtx.fillStyle = clr; eCtx.font = '10px Consolas'; eCtx.fillText(`SUBJECT OPERATIVE: TERRY // IDENTITY CERTIFIED`, 35, 65);
-            eCtx.fillText(`SYSTEM REAPER SECTOR: ${currentTab.toUpperCase()}_GRID`, 35, 80);
+            eCtx.fillStyle = clr; eCtx.font = '10px Consolas'; eCtx.fillText(`SUBJECT OPERATIVE: ${config.username} // IDENTITY CERTIFIED`, 35, 65);
             
-            eCtx.strokeStyle = 'rgba(255,0,60,0.2)'; eCtx.lineWidth = 1; eCtx.beginPath(); eCtx.moveTo(35, 95); eCtx.lineTo(465, 95); eCtx.stroke();
-
-            // Данные статистики
             eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("TOTAL DAMAGE INFLICTED:", 40, 130);
             eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText(`${td} HP`, 260, 130);
-
             eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("CONFIRMED ELIMINATIONS:", 40, 165);
             eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText(`${tk} KILLS`, 260, 165);
-
             eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("OPERATIONAL K/D INDEX:", 40, 200);
             eCtx.fillStyle = clr; eCtx.font = 'bold 16px Consolas'; eCtx.fillText(`${kd}`, 260, 200);
 
-            // Оценка угрозы
-            let level = kd >= 2.0 ? "CRITICAL // CYBER_ASSASSIN" : "NORMAL // NET_RUNNER";
-            eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("THREAT ASSIGNMENT RATE:", 40, 245);
-            eCtx.fillStyle = kd >= 2.0 ? '#00ff66' : '#ff9900'; eCtx.font = 'bold 12px Consolas'; eCtx.fillText(level, 260, 245);
-
-            // Подвал
-            eCtx.strokeStyle = 'rgba(255,0,60,0.2)'; eCtx.beginPath(); eCtx.moveTo(35, 280); eCtx.lineTo(465, 280); eCtx.stroke();
-            eCtx.fillStyle = '#333'; eCtx.font = '9px Consolas';
-            eCtx.fillText(`TIMESTAMP: ${new Date().toLocaleString()} // SECURE_LINK`, 40, 305);
-            eCtx.fillText("NEXUS REAPER PROTOCOL GENERATION V4.0. DESTROY AFTER READING.", 40, 320);
-
-            // Скачивание готовой картинки
-            const link = document.createElement('a'); link.download = `BLACK_FILE_TERRY_${currentTab.toUpperCase()}.png`;
-            link.href = expCanvas.toDataURL(); link.click();
-            pushLog('EXPORT', 'BLACK_FILE GRAPHIC OVERLAY EXPORTED.');
+            const link = document.createElement('a'); link.download = `BLACK_FILE_${config.username}_${currentTab.toUpperCase()}.png`;
+            link.href = expCanvas.toDataURL(); link.click(); pushLog('EXPORT', 'BLACK_FILE GRAPHIC OVERLAY EXPORTED.');
         }
 
         // TIMER SYSTEMS
@@ -821,7 +914,7 @@
                 sec--; let m = Math.floor(sec / 60); let s = sec % 60;
                 document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
                 if (sec <= 45 && sec > 0) document.getElementById('timer-box').classList.add('alert');
-                if (sec <= 0) { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; pushLog('WARNING', 'TIMER COUNTER EXPIRED_'); }
+                if (sec <= 0) { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; }
             }, 1000);
         }
         function stopTimer() { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; document.getElementById('timer-box').classList.remove('alert'); }
