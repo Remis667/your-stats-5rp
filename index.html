@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERRY // MATRIX HUD v2.0</title>
+    <title>TERRY // APEX HUD v3.0</title>
     <style>
         :root {
-            --bg: #030303;
-            --panel: rgba(6, 2, 2, 0.65);
+            --bg: #020202;
+            --panel: rgba(5, 2, 2, 0.7);
             --panel-blur: blur(20px);
             --accent: #ff003c;
             --accent-glow: rgba(255, 0, 60, 0.8);
             --accent-dim: rgba(255, 0, 60, 0.12);
             --text: #ffffff;
-            --text-dim: #666;
+            --text-dim: #555;
             --border: rgba(255, 0, 60, 0.25);
             --neon-green: #00ff66;
         }
@@ -24,184 +24,154 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Consolas', 'Courier New', monospace; user-select: none; }
 
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            text-transform: uppercase;
-            overflow: hidden;
-            position: relative;
+            background-color: var(--bg); color: var(--text); padding: 20px;
+            display: flex; flex-direction: column; min-height: 100vh;
+            text-transform: uppercase; overflow: hidden; position: relative;
         }
 
-        /* ЭФФЕКТ СКАНИРОВАНИЯ ЭКРАНА CRT */
         body::before {
-            content: " "; display: block; position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
             z-index: 99999; pointer-events: none; background-size: 100% 4px; opacity: 0.35;
         }
 
-        /* ЗАГРУЗОЧНЫЙ ЭКРАН (BOOT SEQUENCE) */
+        /* BOOT SCREEN */
         #boot-screen {
             position: fixed; top:0; left:0; width:100vw; height:100vh; background:#000;
-            z-index: 100000; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; padding: 40px; transition: opacity 0.6s ease;
+            z-index: 100000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; transition: opacity 0.5s ease;
         }
         .boot-loader { width: 400px; max-width: 100%; color: var(--accent); font-size: 0.75rem; line-height: 1.4; }
-        .progress-bar-container { border: 1px solid var(--border); width: 100%; height: 12px; margin-top: 15px; padding: 2px; }
-        .progress-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 8px var(--accent); }
+        .progress-bar-container { border: 1px solid var(--border); width: 100%; height: 12px; margin-top: 15px; padding: 2px; background: #000; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 8px var(--accent); transition: width 0.1s ease; }
 
-        /* ASCII ЛОГОТИП С АНИМАЦИЕЙ СВЕЧЕНИЯ */
+        /* ASCII LOGO */
         .ascii-logo {
-            text-align: center; font-size: 8px; line-height: 1; white-space: pre;
-            color: var(--accent); text-shadow: 0 0 5px var(--accent-dim);
-            margin: 5px auto 15px auto; animation: pulse-glow 3s infinite ease-in-out;
-            letter-spacing: 1px; font-weight: bold;
+            text-align: center; font-size: 7.5px; line-height: 1; white-space: pre; color: var(--accent);
+            margin: 5px auto 12px auto; animation: pulse-glow 3s infinite ease-in-out; font-weight: bold;
         }
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 4px rgba(255,0,60,0.4); opacity: 0.9; }
-            50% { text-shadow: 0 0 15px rgba(255,0,60,0.9); opacity: 1; }
-        }
+        @keyframes pulse-glow { 0%, 100% { text-shadow: 0 0 4px var(--accent-dim); opacity: 0.8; } 50% { text-shadow: 0 0 15px var(--accent-glow); opacity: 1; } }
 
-        /* ШАПКА С ЭФФЕКТОМ ГЛИТЧА */
+        /* HEADER */
         .top-bar {
             width: 100%; display: flex; justify-content: space-between; align-items: center;
             border: 1px solid var(--border); border-bottom: 2px solid var(--accent);
-            padding: 12px 20px; margin-bottom: 15px; background: rgba(5, 2, 2, 0.9);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+            padding: 12px 20px; margin-bottom: 12px; background: rgba(5, 2, 2, 0.95);
         }
-        .title { 
-            font-size: 1.1rem; font-weight: 900; letter-spacing: 4px; 
-            text-shadow: 0 0 8px var(--accent); position: relative;
-        }
-        .title::after {
-            content: 'ROOT@TERRY:_# HUD_WEBMESH_SYSTEM'; position: absolute; top:0; left:0;
-            color: #00ffff; opacity: 0; z-index: -1;
-        }
-        .title:hover::after {
-            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; opacity: 0.6;
-        }
-        @keyframes glitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-        .status { background: rgba(255, 0, 60, 0.15); border: 1px solid var(--accent); padding: 4px 12px; font-size: 0.65rem; letter-spacing: 2px; box-shadow: inset 0 0 5px var(--accent-dim); }
+        .title { font-size: 1.05rem; font-weight: 900; letter-spacing: 4px; text-shadow: 0 0 8px var(--accent); cursor: pointer; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .settings-btn { background: transparent; border: 1px solid var(--border); color: #fff; padding: 4px 12px; font-size: 0.7rem; cursor: pointer; font-weight: bold; }
+        .settings-btn:hover { border-color: var(--accent); background: var(--accent-dim); text-shadow: 0 0 5px var(--accent); }
+        .status { background: rgba(255, 0, 60, 0.15); border: 1px solid var(--accent); padding: 4px 12px; font-size: 0.65rem; letter-spacing: 2px; }
 
-        /* ИНФОРМАЦИОННЫЕ КАРТОЧКИ */
+        /* STATS CARDS WITH PROGRESS BARS */
         .overall-panel {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px; margin-bottom: 15px; width: 100%; max-width: 1600px; margin-left: auto; margin-right: auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px; margin-bottom: 12px; width: 100%; max-width: 1600px; margin-left: auto; margin-right: auto;
         }
-        .overall-card { 
-            background: var(--panel); backdrop-filter: var(--panel-blur); 
-            border: 1px solid rgba(255,255,255,0.03); border-left: 4px solid var(--accent); 
-            padding: 15px; position: relative; overflow: hidden; transition: transform 0.2s;
-        }
-        .overall-card:hover { transform: translateY(-2px); border-color: rgba(255,0,60,0.2); }
-        .overall-card::before {
-            content: ''; position: absolute; bottom: 0; right: 0; width: 40px; height: 40px;
-            background: linear-gradient(135deg, transparent 85%, var(--accent-dim) 85%);
-        }
+        .overall-card { background: var(--panel); backdrop-filter: var(--panel-blur); border: 1px solid rgba(255,255,255,0.02); border-left: 4px solid var(--accent); padding: 12px 15px; position: relative; }
         .overall-card .label { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 1.5px; }
-        .overall-card .value { font-size: 1.4rem; font-weight: 900; margin-top: 5px; transition: all 0.3s; }
-        .overall-card .value span { color: var(--accent); text-shadow: 0 0 5px var(--accent); }
+        .overall-card .value { font-size: 1.3rem; font-weight: 900; margin-top: 3px; display: flex; justify-content: space-between; align-items: baseline; }
+        .overall-card .value span { color: var(--accent); text-shadow: 0 0 5px var(--accent); font-size: 0.8rem; }
+        .stat-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); margin-top: 8px; position: relative; overflow: hidden; }
+        .stat-bar-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 5px var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* HUD ИНТЕРФЕЙС УПРАВЛЕНИЯ */
+        /* CONTROLS HUD */
         .hud-control-container {
-            display: flex; flex-direction: column; gap: 12px; background: var(--panel); 
-            border: 1px solid var(--border); padding: 18px; backdrop-filter: var(--panel-blur);
-            max-width: 1600px; width: 100%; margin: 0 auto 15px auto; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 12px; background: var(--panel); border: 1px solid var(--border); padding: 15px; backdrop-filter: var(--panel-blur); max-width: 1600px; width: 100%; margin: 0 auto 12px auto;
         }
-        .hud-top-line { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed rgba(255,0,60,0.15); padding-bottom: 12px; }
+        .hud-top-line { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px dashed rgba(255,0,60,0.12); padding-bottom: 10px; }
 
-        /* ТАБЫ С КРУТЫМ НАВЕДЕНИЕМ */
-        .tab-nav { display: flex; gap: 8px; }
-        .tab-btn { 
-            background: rgba(0,0,0,0.7); border: 1px solid #1a1a1a; color: #555; 
-            padding: 10px 26px; font-size: 0.8rem; font-weight: 900; letter-spacing: 2px; 
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
-        }
-        .tab-btn::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s; }
-        .tab-btn:hover { color: #fff; border-color: #333; }
-        .tab-btn:hover::after { width: 100%; }
-        .tab-btn.active { 
-            color: #fff; border-color: var(--accent); 
-            background: linear-gradient(180deg, rgba(255,0,60,0.12), transparent);
-            text-shadow: 0 0 6px var(--accent); box-shadow: inset 0 0 10px rgba(255,0,60,0.05);
-        }
-        .tab-btn.active::before {
-            content: ''; position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
-            width: 50%; height: 2px; background: var(--accent); box-shadow: 0 0 10px var(--accent);
-        }
+        .tab-nav { display: flex; gap: 6px; }
+        .tab-btn { background: rgba(0,0,0,0.8); border: 1px solid #151515; color: #444; padding: 8px 22px; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; cursor: pointer; transition: all 0.25s; position: relative; }
+        .tab-btn.active { color: #fff; border-color: var(--accent); background: linear-gradient(180deg, var(--accent-dim), transparent); text-shadow: 0 0 6px var(--accent); }
 
-        /* ТАЙМЕР */
-        .timer-box { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4); padding: 4px 10px; border: 1px solid rgba(255,255,255,0.02); }
-        .timer-display { font-size: 1.25rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 6px var(--accent); min-width: 65px; letter-spacing: 1px; }
-        .timer-input { background: #050505; border: 1px solid #222; color: #fff; padding: 5px 8px; max-width: 65px; text-align: center; font-size: 0.8rem; transition: border 0.2s; }
-        .timer-input:focus { border-color: var(--accent); }
-        .timer-btn { background: transparent; border: 1px solid #262626; color: #888; padding: 4px 12px; cursor: pointer; font-size: 0.7rem; font-weight: bold; transition: all 0.2s; }
+        .timer-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); padding: 4px 8px; border: 1px solid rgba(255,255,255,0.01); }
+        .timer-display { font-size: 1.2rem; font-weight: 900; color: var(--accent); text-shadow: 0 0 5px var(--accent); min-width: 60px; }
+        .timer-input { background: #000; border: 1px solid #222; color: #fff; padding: 4px 6px; max-width: 55px; text-align: center; font-size: 0.75rem; }
+        .timer-btn { background: transparent; border: 1px solid #222; color: #777; padding: 4px 10px; cursor: pointer; font-size: 0.65rem; font-weight: bold; }
         .timer-btn:hover { border-color: #fff; color: #fff; }
         .timer-box.alert { animation: blink-alert 0.4s infinite; }
-        @keyframes blink-alert { 0%, 100% { background: rgba(0,0,0,0.4); } 50% { background: rgba(255,0,60,0.25); } }
+        @keyframes blink-alert { 50% { background: rgba(255,0,60,0.2); } }
 
-        /* ИНПУТЫ ДЛЯ ВВОДА ДАННЫХ */
-        .input-group { display: flex; gap: 10px; flex-wrap: wrap; width: 100%; margin-top: 5px; animation: slide-up 0.3s ease; }
-        @keyframes slide-up { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        
-        input, select { 
-            background: rgba(5, 5, 5, 0.85); border: 1px solid #202020; color: #fff; 
-            padding: 10px 14px; font-size: 0.8rem; outline: none; letter-spacing: 1px; 
-            flex: 1; min-width: 120px; transition: all 0.2s ease;
-        }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(255,0,60,0.15); }
+        .input-group { display: flex; gap: 8px; flex-wrap: wrap; width: 100%; }
+        input, select { background: rgba(3, 3, 3, 0.9); border: 1px solid #1a1a1a; color: #fff; padding: 9px 12px; font-size: 0.8rem; outline: none; flex: 1; min-width: 110px; }
+        input:focus, select:focus { border-color: var(--accent); }
+        button.action-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 0 25px; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: all 0.2s; }
+        button.action-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 10px var(--accent); }
 
-        button.action-btn { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 0 30px; font-size: 1.3rem; font-weight: 900; cursor: pointer; transition: all 0.2s; }
-        button.action-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); transform: scale(1.02); }
-
-        /* КАНВАС И ЭКРАН СЕТИ */
-        .main-container { flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; }
-        .network-viewport {
-            position: relative; flex: 1; background: #010101; border: 1px solid var(--border); overflow: hidden;
-            box-shadow: inset 0 0 60px rgba(0,0,0,1);
-        }
+        /* MAIN CONTAINER VIEWPORTS */
+        .main-container { flex: 1; width: 100%; max-width: 1600px; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .network-viewport { position: relative; flex: 1; background: #010101; border: 1px solid var(--border); overflow: hidden; display: block; }
         canvas { display: block; width: 100%; height: 100%; cursor: grab; }
         canvas:active { cursor: grabbing; }
 
-        /* ВСПЛЫВАЮЩИЙ ТУЛТИП ДЛЯ НОД */
+        /* СТАРЫЙ ИНТЕРФЕЙС СТРОЧКАМИ (CLASSIC LINES VIEW) */
+        .classic-lines-viewport {
+            position: absolute; top:0; left:0; width:100%; height:100%; background:#020202; border: 1px solid var(--border);
+            padding: 20px; overflow-y: auto; display: none; box-shadow: inset 0 0 40px rgba(0,0,0,0.9); z-index: 5;
+        }
+        .classic-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left; }
+        .classic-table th { border-bottom: 2px solid var(--accent); padding: 10px; color: var(--accent); font-weight: bold; }
+        .classic-table td { border-bottom: 1px solid #151515; padding: 10px; color: #ccc; }
+        .classic-table tr:hover td { background: rgba(255,0,60,0.03); color: #fff; }
+        .delete-line-btn { background: transparent; border: 1px dashed var(--accent); color: var(--accent); padding: 2px 6px; font-size: 0.65rem; cursor: pointer; }
+        .delete-line-btn:hover { background: var(--accent); color: #000; }
+        .empty-classic { text-align: center; color: #444; padding: 40px; font-size: 0.8rem; letter-spacing: 2px; }
+
+        /* GLITCH HORIZONTAL OVERLAY BAND */
+        #glitch-overlay { position: absolute; left: 0; width: 100%; height: 4px; background: rgba(255, 0, 60, 0.4); box-shadow: 0 0 15px var(--accent); display: none; pointer-events: none; z-index: 99; }
+
+        /* LIVE ACTIVITY TERMINAL LOG */
+        .terminal-log-panel {
+            position: absolute; bottom: 12px; left: 15px; width: 320px; height: 100px;
+            background: rgba(0,0,0,0.85); border: 1px solid #151515; border-left: 2px solid var(--accent);
+            padding: 8px; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;
+            font-size: 0.65rem; line-height: 1.4; color: #888; pointer-events: none; z-index: 8;
+        }
+        .term-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: term-fade 0.2s ease-out; }
+        .term-line span { color: var(--accent); }
+        @keyframes term-fade { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* MODAL DIALOGS (SETTINGS) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px); z-index: 200000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: #050505; border: 1px solid var(--accent); padding: 25px; width: 420px; max-width: 90%;
+            box-shadow: 0 0 30px rgba(255,0,60,0.2); position: relative;
+        }
+        .modal-card h3 { font-size: 1rem; color: var(--accent); margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; letter-spacing: 2px; }
+        .setting-row { margin-bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+        .setting-row label { font-size: 0.65rem; color: #888; letter-spacing: 1px; }
+        .setting-row select, .setting-row input[type="range"] { width: 100%; background: #000; border: 1px solid #222; padding: 8px; color: #fff; }
+        .setting-row input[type="range"] { appearance: none; height: 4px; background: #222; outline: none; }
+        .setting-row input[type="range"]::-webkit-slider-thumb { appearance: none; width: 12px; height: 12px; background: var(--accent); cursor: pointer; box-shadow: 0 0 5px var(--accent); }
+        .close-modal-btn { background: transparent; border: 1px solid #333; color: #fff; width: 100%; padding: 8px; margin-top: 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .close-modal-btn:hover { border-color: var(--accent); color: var(--accent); }
+
         .osint-tooltip {
-            position: absolute; background: rgba(3, 1, 1, 0.96); border: 1px solid var(--accent); padding: 14px; display: none; pointer-events: none; z-index: 1000;
-            box-shadow: 0 0 25px rgba(255, 0, 60, 0.25); width: 240px; backdrop-filter: blur(8px); transform: scale(0.95); transition: transform 0.1s ease;
+            position: absolute; background: rgba(3, 1, 1, 0.98); border: 1px solid var(--accent); padding: 12px; display: none; pointer-events: none; z-index: 1000;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.3); width: 230px; backdrop-filter: blur(8px);
         }
-        .osint-tooltip .node-title { font-size: 0.8rem; font-weight: bold; color: #fff; border-bottom: 1px solid var(--accent); padding-bottom: 6px; margin-bottom: 10px; text-shadow: 0 0 5px var(--accent); }
-        .osint-tooltip .data-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1px dashed rgba(255,255,255,0.04); }
-        .osint-tooltip .data-row .field { color: #555; }
-        .osint-tooltip .data-row .val { color: #fff; font-weight: bold; }
-        .osint-tooltip .data-row .val.high { color: var(--neon-green); text-shadow: 0 0 5px rgba(0,255,102,0.4); }
+        .osint-tooltip .node-title { font-size: 0.8rem; font-weight: bold; color: #fff; border-bottom: 1px solid var(--accent); padding-bottom: 5px; margin-bottom: 8px; text-shadow: 0 0 5px var(--accent); }
+        .osint-tooltip .data-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 4px; }
+        .osint-tooltip .data-row .field { color: #555; } .osint-tooltip .data-row .val { color: #fff; font-weight: bold; }
+        .osint-tooltip .data-row .val.high { color: var(--neon-green); }
 
-        .map-instruction { position: absolute; bottom: 12px; left: 15px; font-size: 0.65rem; color: #444; letter-spacing: 1px; pointer-events: none; }
+        .map-instruction { position: absolute; bottom: 12px; right: 15px; font-size: 0.65rem; color: #444; letter-spacing: 1px; pointer-events: none; z-index: 8; }
         .map-instruction span { color: var(--accent); }
-
-        .purge-btn {
-            position: absolute; bottom: 12px; right: 15px; background: rgba(20, 2, 4, 0.8);
-            border: 1px dashed var(--accent); color: var(--accent); padding: 8px 16px; font-size: 0.65rem; font-weight: bold; cursor: pointer; letter-spacing: 1.5px; z-index: 10; transition: all 0.2s;
-        }
-        .purge-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 12px var(--accent); }
+        .purge-btn { position: absolute; bottom: 35px; right: 15px; background: rgba(20, 2, 4, 0.8); border: 1px dashed var(--accent); color: var(--accent); padding: 6px 12px; font-size: 0.65rem; font-weight: bold; cursor: pointer; z-index: 8; display:none; }
+        .purge-btn:hover { background: var(--accent); color: #000; }
     </style>
 </head>
 <body>
 
     <div id="boot-screen">
         <div class="boot-loader">
-            <div id="boot-logs">INITIATING SECURITY PROTOCOLS...<br></div>
-            <div class="progress-bar-container">
-                <div class="progress-fill" id="boot-progress"></div>
-            </div>
+            <div id="boot-logs">INIT SECURE TERRY_APEX MESH v3.0...<br></div>
+            <div class="progress-bar-container"><div class="progress-fill" id="boot-progress"></div></div>
         </div>
     </div>
 
@@ -212,23 +182,29 @@
     </div>
 
     <div class="top-bar">
-        <div class="title" id="main-title">ROOT@TERRY:_# HUD_WEBMESH_SYSTEM</div>
-        <div class="status">[ GRID_STATUS_ACTIVE ]</div>
+        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# MESH_TERMINAL_v3</div>
+        <div class="header-actions">
+            <button class="settings-btn" onclick="toggleModal(true)">[ SETTINGS_ ]</button>
+            <div class="status">[ ONLINE ]</div>
+        </div>
     </div>
 
     <div class="overall-panel">
         <div class="overall-card">
-            <div class="label">TOTAL DAMAGE COMBINED</div>
+            <div class="label">COMBINED DAMAGE INDEX</div>
             <div class="value" id="total-damage-val">0 <span>HP</span></div>
+            <div class="stat-bar"><div class="stat-bar-fill" id="bar-damage"></div></div>
         </div>
         <div class="overall-panel" style="grid-template-columns: 1fr 1fr; margin: 0; gap: 15px;">
             <div class="overall-card">
-                <div class="label">TOTAL KILLS REGISTERED</div>
+                <div class="label">KILLS COUNTER</div>
                 <div class="value" id="total-kills-val">0 <span>KILLS</span></div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="bar-kills"></div></div>
             </div>
             <div class="overall-card">
-                <div class="label">GLOBAL K/D RATIO</div>
+                <div class="label">PERFORMANCE K/D</div>
                 <div class="value" id="global-kd-val">0.00</div>
+                <div class="stat-bar"><div class="stat-bar-fill" id="bar-kd"></div></div>
             </div>
         </div>
     </div>
@@ -240,247 +216,339 @@
                 <button class="tab-btn" id="tab-vzp" onclick="switchTab('vzp')">VZP PATROL</button>
                 <button class="tab-btn" id="tab-capt" onclick="switchTab('capt')">CAPT ZONE</button>
             </div>
-
             <div class="timer-box" id="timer-box">
                 <div class="timer-display" id="timer-display">00:00</div>
                 <input type="number" id="custom-minutes" class="timer-input" placeholder="MIN">
-                <button class="timer-btn" onclick="startCustomTimer()" style="color: var(--neon-green); border-color: rgba(0,255,102,0.2);">START</button>
-                <button class="timer-btn" onclick="stopTimer()" style="color: var(--accent); border-color: rgba(255,0,60,0.2);">RESET</button>
+                <button class="timer-btn" onclick="startCustomTimer()" style="color: var(--neon-green);">START</button>
+                <button class="timer-btn" onclick="stopTimer()" style="color: var(--accent);">RESET</button>
             </div>
         </div>
 
         <div class="input-area">
             <div id="panel-dm" class="input-group">
-                <select id="dm-weapon">
-                    <option value="SPECIAL RIFLE">SPECIAL RIFLE</option>
-                    <option value="REVOLVER">REVOLVER</option>
-                </select>
-                <select id="dm-type" onchange="updateDmFields()">
-                    <option value="FULL DM">FULL DM</option>
-                    <option value="1X1 DM">1X1 DM</option>
-                </select>
-                <div id="dm-dynamic-container" style="display: flex; flex:1;">
-                    <input type="number" id="dm-damage" placeholder="DAMAGE">
-                </div>
+                <select id="dm-weapon"><option value="SPECIAL RIFLE">SPECIAL RIFLE</option><option value="REVOLVER">REVOLVER</option></select>
+                <select id="dm-type" onchange="updateDmFields()"><option value="FULL DM">FULL DM</option><option value="1X1 DM">1X1 DM</option></select>
+                <div id="dm-dynamic-container" style="display: flex; flex:1;"><input type="number" id="dm-damage" placeholder="DAMAGE"></div>
                 <button class="action-btn" onclick="addDmLog()">+</button>
             </div>
-
             <div id="panel-vzp" class="input-group" style="display:none;">
                 <input type="text" id="vzp-server" placeholder="SERVER NAME" oninput="this.value = this.value.toUpperCase()">
-                <input type="number" id="vzp-kills" placeholder="KILLS">
-                <input type="number" id="vzp-deaths" placeholder="DEATHS">
-                <input type="number" id="vzp-damage" placeholder="DAMAGE">
+                <input type="number" id="vzp-kills" placeholder="KILLS"><input type="number" id="vzp-deaths" placeholder="DEATHS"><input type="number" id="vzp-damage" placeholder="DAMAGE">
                 <button class="action-btn" onclick="addVzpLog()">+</button>
             </div>
-
             <div id="panel-capt" class="input-group" style="display:none;">
                 <input type="text" id="capt-server" placeholder="SERVER" oninput="this.value = this.value.toUpperCase()">
-                <input type="number" id="capt-kills" placeholder="KILLS">
-                <input type="number" id="capt-deaths" placeholder="DEATHS">
-                <input type="number" id="capt-damage" placeholder="DAMAGE">
-                <input type="number" id="capt-hs" placeholder="HS %" max="100">
-                <input type="number" id="capt-hit" placeholder="HIT %" max="100">
+                <input type="number" id="capt-kills" placeholder="KILLS"><input type="number" id="capt-deaths" placeholder="DEATHS"><input type="number" id="capt-damage" placeholder="DAMAGE">
+                <input type="number" id="capt-hs" placeholder="HS %" max="100"><input type="number" id="capt-hit" placeholder="HIT %" max="100">
                 <button class="action-btn" onclick="addCaptLog()">+</button>
             </div>
         </div>
     </div>
 
     <div class="main-container">
-        <div class="network-viewport" id="viewport">
+        <div class="network-viewport" id="viewport-mesh">
             <canvas id="netCanvas"></canvas>
-            <div class="osint-tooltip" id="osintTooltip"></div>
-            
-            <div class="map-instruction">
-                [ MOUSE: <span>DRAG & ZOOM</span> // DOUBLE-CLICK NODE: <span>ERASE NODE LOG</span> ]
-            </div>
+            <div id="glitch-overlay"></div>
+        </div>
 
-            <button class="purge-btn" onclick="purgeCurrentGraph()">[ PURGE_CURRENT_GRID ]</button>
+        <div class="classic-lines-viewport" id="viewport-classic">
+            <div id="classic-table-container"></div>
+        </div>
+
+        <div class="terminal-log-panel" id="term-logs"></div>
+
+        <div class="osint-tooltip" id="osintTooltip"></div>
+        <div class="map-instruction" id="instructions-box">[ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK NODE: <span>ERASE MATCH</span> ]</div>
+        <button class="purge-btn" id="purge-btn-element" onclick="purgeCurrentGraph()">[ PURGE_CURRENT_GRID ]</button>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <h3>[ SETTINGS_MATRIX_CONTROL ]</h3>
+            <div class="setting-row">
+                <label>INTERFACE STRUCTURE</label>
+                <select id="setting-ui" onchange="applySettings()"><option value="mesh">WEB_MESH GRAPHICS (NEW)</option><option value="classic">CLASSIC_LINES TABLE (OLD)</option></select>
+            </div>
+            <div class="setting-row">
+                <label>CYBER VISUAL MATRIX COLOR</label>
+                <select id="setting-theme" onchange="applySettings()"><option value="red">RED_ALERT PROTOCOL</option><option value="green">TOXIC_MESH PROTOCOL</option><option value="blue">ICE_BREAKER PROTOCOL</option></select>
+            </div>
+            <div class="setting-row">
+                <label>SOUND EFFECTS VOLUME</label>
+                <input type="range" id="volume-fx" min="0" max="100" value="40" oninput="applySettings()">
+            </div>
+            <div class="setting-row">
+                <label>BACKGROUND SERVER HUM VOLUME</label>
+                <input type="range" id="volume-bg" min="0" max="100" value="15" oninput="applySettings()">
+            </div>
+            <button class="close-modal-btn" onclick="toggleModal(false)">[ STORE_CHANGES ]</button>
         </div>
     </div>
 
     <script>
-        // Эмуляция загрузки системных файлов при запуске
-        window.addEventListener('DOMContentLoaded', () => {
-            const logsContainer = document.getElementById('boot-logs');
-            const progressFill = document.getElementById('boot-progress');
-            const bootScreen = document.getElementById('boot-screen');
-            
-            const logLines = [
-                "LOADING TERRY_MATRIX CORE_V2...",
-                "CONNECTING TO LOCAL_STORAGE NODE...",
-                "DECRYPTING GRAPH UTILITIES...",
-                "INJECTING CRT SCANLINE INTERFACE...",
-                "GRID STATUS: OPERATIONAL."
-            ];
-            
-            let currentLine = 0;
-            let progress = 0;
-            
-            let interval = setInterval(() => {
-                if (currentLine < logLines.length) {
-                    logsContainer.innerHTML += logLines[currentLine] + "<br>";
-                    currentLine++;
-                }
-                progress += 20;
-                progressFill.style.width = progress + "%";
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        bootScreen.style.opacity = '0';
-                        setTimeout(() => bootScreen.style.display = 'none', 600);
-                    }, 250);
-                }
-            }, 180);
-        });
-
         let db = JSON.parse(localStorage.getItem('cyberStatsDB')) || { dm: [], vzp: [], capt: [] };
-        let currentTab = 'dm';
-        let countdownInterval = null;
+        let config = JSON.parse(localStorage.getItem('cyberHudConfig')) || { ui: 'mesh', theme: 'red', volFx: 40, volBg: 15 };
+        let currentTab = 'dm'; let countdownInterval = null;
 
-        const canvas = document.getElementById('netCanvas');
-        const ctx = canvas.getContext('2d');
+        const canvas = document.getElementById('netCanvas'); const ctx = canvas.getContext('2d');
         let nodes = []; let links = []; let hoveredNode = null; let draggedNode = null;
-        
-        let transform = { x: 0, y: 0, zoom: 1 };
-        let isPanning = false; let panStart = { x: 0, y: 0 };
-        let dataPackets = []; let clickParticles = [];
+        let transform = { x: 0, y: 0, zoom: 1 }; let isPanning = false; let panStart = { x: 0, y: 0 };
+        let dataPackets = []; let clickParticles = []; let pulseRadius = 0;
 
-        // Кастомные звуковые волны
+        // SOUND ARCHITECTURE
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-            if (type === 'click') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(550, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.015, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            } else if (type === 'success') {
-                osc.type = 'triangle'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(700, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.04, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-            } else if (type === 'wipe') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(350, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.06, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
-            }
-            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        let bgHumNode = null; let bgHumGain = null;
+
+        function initBackgroundHum() {
+            if (bgHumNode) return;
+            try {
+                bgHumNode = audioCtx.createOscillator(); bgHumGain = audioCtx.createGain();
+                bgHumNode.type = 'sine'; bgHumNode.frequency.setValueAtTime(55, audioCtx.currentTime); // Low engine server hum
+                let filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(80, audioCtx.currentTime);
+                bgHumGain.gain.setValueAtTime(config.volBg / 1000, audioCtx.currentTime);
+                bgHumNode.connect(filter); filter.connect(bgHumGain); bgHumGain.connect(audioCtx.destination);
+                bgHumNode.start();
+            } catch(e){}
         }
 
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initBackgroundHum();
+            let multiplier = config.volFx / 100; if(multiplier <= 0) return;
+            let osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            if (type === 'click') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.015 * multiplier, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+            } else if (type === 'success') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(280, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(650, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.035 * multiplier, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+            } else if (type === 'wipe') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(20, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.05 * multiplier, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            }
+            osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+        }
+
+        // BOOT LOADING SYSTEM
+        window.addEventListener('DOMContentLoaded', () => {
+            const logsContainer = document.getElementById('boot-logs'); const progressFill = document.getElementById('boot-progress');
+            const lines = ["BOOT_ LOADER v3.0 ONLINE...", "MAP SYSTEM INTERACTION LOADED.", "CONFIG PROTOCOL INITIATED...", "SERVER_HUM_NODE GENERATED.", "COMPILING UI VIEWS..."];
+            let lineIdx = 0, prog = 0;
+            let iv = setInterval(() => {
+                if (lineIdx < lines.length) { logsContainer.innerHTML += lines[lineIdx] + "<br>"; lineIdx++; }
+                prog += 20; progressFill.style.width = prog + "%";
+                if (prog >= 100) {
+                    clearInterval(iv);
+                    setTimeout(() => {
+                        document.getElementById('boot-screen').style.opacity = '0';
+                        setTimeout(() => { document.getElementById('boot-screen').style.display = 'none'; try { audioCtx.resume(); initBackgroundHum(); }catch(e){} }, 500);
+                    }, 200);
+                }
+            }, 120);
+            
+            // Заполнение настроек из кэша
+            document.getElementById('setting-ui').value = config.ui;
+            document.getElementById('setting-theme').value = config.theme;
+            document.getElementById('volume-fx').value = config.volFx;
+            document.getElementById('volume-bg').value = config.volBg;
+            applyThemeStyles(); renderActiveView();
+            
+            // Механические клики в поля ввода
+            document.querySelectorAll('input, select').forEach(el => {
+                el.addEventListener('input', () => playSound('click'));
+                el.addEventListener('focus', () => playSound('click'));
+            });
+        });
+
+        // LIVE TERMINAL LOGS OUTPUT
+        function pushLog(node, msg) {
+            const container = document.getElementById('term-logs');
+            const time = new Date().toLocaleTimeString('ru-RU');
+            container.innerHTML += `<div class="term-line">[${time}] <span>${node}:</span> ${msg.toUpperCase()}</div>`;
+            if (container.children.length > 5) container.removeChild(container.children[0]);
+        }
+
+        // CONFIG CONTROL
+        function toggleModal(open) { playSound('click'); document.getElementById('settings-modal').classList.toggle('active', open); }
+        
+        function applySettings() {
+            config.ui = document.getElementById('setting-ui').value;
+            config.theme = document.getElementById('setting-theme').value;
+            config.volFx = parseInt(document.getElementById('volume-fx').value);
+            config.volBg = parseInt(document.getElementById('volume-bg').value);
+            localStorage.setItem('cyberHudConfig', JSON.stringify(config));
+            
+            if (bgHumGain) { bgHumGain.gain.setValueAtTime(config.volBg / 1000, audioCtx.currentTime); }
+            applyThemeStyles(); renderActiveView();
+        }
+
+        function applyThemeStyles() {
+            let r = document.documentElement.style;
+            if (config.theme === 'red') {
+                r.setProperty('--accent', '#ff003c'); r.setProperty('--accent-glow', 'rgba(255, 0, 60, 0.8)'); r.setProperty('--accent-dim', 'rgba(255, 0, 60, 0.12)'); r.setProperty('--border', 'rgba(255, 0, 60, 0.25)');
+            } else if (config.theme === 'green') {
+                r.setProperty('--accent', '#00ff66'); r.setProperty('--accent-glow', 'rgba(0, 255, 102, 0.8)'); r.setProperty('--accent-dim', 'rgba(0, 255, 102, 0.12)'); r.setProperty('--border', 'rgba(0, 255, 102, 0.25)');
+            } else if (config.theme === 'blue') {
+                r.setProperty('--accent', '#00d2ff'); r.setProperty('--accent-glow', 'rgba(0, 210, 255, 0.8)'); r.setProperty('--accent-dim', 'rgba(0, 210, 255, 0.12)'); r.setProperty('--border', 'rgba(0, 210, 255, 0.25)');
+            }
+        }
+
+        function renderActiveView() {
+            const meshView = document.getElementById('viewport-mesh');
+            const classicView = document.getElementById('viewport-classic');
+            const purgeBtn = document.getElementById('purge-btn-element');
+
+            if (config.ui === 'mesh') {
+                meshView.style.display = 'block'; classicView.style.display = 'none'; purgeBtn.style.display = 'none';
+                document.getElementById('instructions-box').innerHTML = '[ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK NODE: <span>ERASE MATCH</span> ]';
+                resizeCanvas(); buildGraph();
+            } else {
+                meshView.style.display = 'none'; classicView.style.display = 'block'; purgeBtn.style.display = 'block';
+                document.getElementById('instructions-box').innerHTML = '[ DATA_VIEW: <span>CLASSIC STRUCTURED MATRIX LINES</span> ]';
+                renderClassicTable();
+            }
+        }
+
+        // SAVE AND LOAD SYSTEM
         function saveDB() {
             localStorage.setItem('cyberStatsDB', JSON.stringify(db));
-            updateOverallStats(); buildGraph();
+            updateOverallStats();
+            if (config.ui === 'mesh') buildGraph(); else renderClassicTable();
+        }
+
+        function triggerGlitchEvent() {
+            const go = document.getElementById('glitch-overlay');
+            go.style.top = Math.random() * 100 + "%"; go.style.display = 'block';
+            setTimeout(() => go.style.display = 'none', 120);
         }
 
         function purgeCurrentGraph() {
-            if (confirm(`WIPE ALL LOGS INSIDE ${currentTab.toUpperCase()} GRID?`)) {
+            if (confirm(`WIPE ALL LOGS INSIDE ${currentTab.toUpperCase()} PROTOCOL?`)) {
                 db[currentTab] = []; document.getElementById('osintTooltip').style.display = 'none';
+                pushLog('SECURITY', `PURGED GRID DATA FOR ${currentTab}`);
                 playSound('wipe'); saveDB();
             }
         }
 
         function switchTab(tabName) {
-            playSound('click');
-            currentTab = tabName;
+            playSound('click'); currentTab = tabName;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tabName}`).classList.add('active');
-
             document.getElementById('panel-dm').style.display = tabName === 'dm' ? 'flex' : 'none';
             document.getElementById('panel-vzp').style.display = tabName === 'vzp' ? 'flex' : 'none';
             document.getElementById('panel-capt').style.display = tabName === 'capt' ? 'flex' : 'none';
-
-            transform = { x: 0, y: 0, zoom: 1 }; buildGraph();
+            pushLog('NAV', `MOVED TO PROTOCOL SECTOR: ${tabName}`);
+            transform = { x: 0, y: 0, zoom: 1 }; saveDB();
         }
 
         function getTodayDate() { return new Date().toLocaleDateString('ru-RU'); }
-        function getCurrentTimeStr() {
-            const n = new Date();
-            return `${n.getHours() < 10 ? '0'+n.getHours() : n.getHours()}:${n.getMinutes() < 10 ? '0'+n.getMinutes() : n.getMinutes()}`;
-        }
-
+        function getCurrentTimeStr() { const n = new Date(); return `${n.getHours() < 10 ? '0'+n.getHours() : n.getHours()}:${n.getMinutes() < 10 ? '0'+n.getMinutes() : n.getMinutes()}`; }
         function updateDmFields() {
             const m = document.getElementById('dm-type').value;
-            const c = document.getElementById('dm-dynamic-container');
-            c.innerHTML = m === 'FULL DM' ? `<input type="number" id="dm-damage" placeholder="DAMAGE">` : `<input type="number" id="dm-kills" placeholder="KILLS">`;
+            document.getElementById('dm-dynamic-container').innerHTML = m === 'FULL DM' ? `<input type="number" id="dm-damage" placeholder="DAMAGE">` : `<input type="number" id="dm-kills" placeholder="KILLS">`;
         }
 
+        // LOG INPUT GENERATORS
         function addDmLog() {
-            const weapon = document.getElementById('dm-weapon').value;
-            const type = document.getElementById('dm-type').value;
-            let damage = parseInt(document.getElementById('dm-damage')?.value) || 0;
-            let kills = parseInt(document.getElementById('dm-kills')?.value) || 0;
+            const weapon = document.getElementById('dm-weapon').value; const type = document.getElementById('dm-type').value;
+            let damage = parseInt(document.getElementById('dm-damage')?.value) || 0; let kills = parseInt(document.getElementById('dm-kills')?.value) || 0;
             db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), weapon, type, damage, kills });
-            playSound('success'); saveDB();
-            animateCardValue('total-damage-val');
+            playSound('success'); triggerGlitchEvent(); pushLog('DM_STORE', `ADDED RECORD -> ${weapon} (${type})`); saveDB();
             if(document.getElementById('dm-damage')) document.getElementById('dm-damage').value = '';
             if(document.getElementById('dm-kills')) document.getElementById('dm-kills').value = '';
         }
 
         function addVzpLog() {
-            const server = document.getElementById('vzp-server').value.trim().toUpperCase();
-            const kills = parseInt(document.getElementById('vzp-kills').value) || 0;
-            const deaths = parseInt(document.getElementById('vzp-deaths').value) || 0;
-            const damage = parseInt(document.getElementById('vzp-damage').value) || 0;
+            const server = document.getElementById('vzp-server').value.trim().toUpperCase(); const kills = parseInt(document.getElementById('vzp-kills').value) || 0;
+            const deaths = parseInt(document.getElementById('vzp-deaths').value) || 0; const damage = parseInt(document.getElementById('vzp-damage').value) || 0;
             if(!server) return;
             db.vzp.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), server, kills, deaths, damage });
-            playSound('success'); saveDB();
-            animateCardValue('total-damage-val');
+            playSound('success'); triggerGlitchEvent(); pushLog('VZP_STORE', `NODE '${server}' PACKET SENT`); saveDB();
             document.getElementById('vzp-server').value=''; document.getElementById('vzp-kills').value=''; document.getElementById('vzp-deaths').value=''; document.getElementById('vzp-damage').value='';
         }
 
         function addCaptLog() {
-            const server = document.getElementById('capt-server').value.trim().toUpperCase();
-            const kills = parseInt(document.getElementById('capt-kills').value) || 0;
-            const deaths = parseInt(document.getElementById('capt-deaths').value) || 0;
-            const damage = parseInt(document.getElementById('capt-damage').value) || 0;
-            const hs = document.getElementById('capt-hs').value ? document.getElementById('capt-hs').value + '%' : '0%';
-            const hit = document.getElementById('capt-hit').value ? document.getElementById('capt-hit').value + '%' : '0%';
+            const server = document.getElementById('capt-server').value.trim().toUpperCase(); const kills = parseInt(document.getElementById('capt-kills').value) || 0;
+            const deaths = parseInt(document.getElementById('capt-deaths').value) || 0; const damage = parseInt(document.getElementById('capt-damage').value) || 0;
+            const hs = document.getElementById('capt-hs').value ? document.getElementById('capt-hs').value + '%' : '0%'; const hit = document.getElementById('capt-hit').value ? document.getElementById('capt-hit').value + '%' : '0%';
             if(!server) return;
             db.capt.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), server, kills, deaths, damage, hs, hit });
-            playSound('success'); saveDB();
-            animateCardValue('total-damage-val');
+            playSound('success'); triggerGlitchEvent(); pushLog('CAPT_STORE', `CAPTURED DATA SENT FOR GRID: ${server}`); saveDB();
             document.getElementById('capt-server').value=''; document.getElementById('capt-kills').value=''; document.getElementById('capt-deaths').value=''; document.getElementById('capt-damage').value=''; document.getElementById('capt-hs').value=''; document.getElementById('capt-hit').value='';
         }
 
-        function animateCardValue(id) {
-            const el = document.getElementById(id);
-            el.style.transform = 'scale(1.08)'; el.style.color = 'var(--accent)';
-            setTimeout(() => { el.style.transform = 'scale(1)'; el.style.color = '#fff'; }, 200);
+        function deleteClassicLine(category, id) {
+            let idx = db[category].findIndex(x => x.id === id);
+            if(idx !== -1) { db[category].splice(idx, 1); playSound('wipe'); pushLog('DESTROY', `REMOVED DIRECT RECORD LINE`); saveDB(); }
         }
 
+        // METRICS GRAPHICS UPDATER
         function updateOverallStats() {
             let td = 0, tk = 0, det = 0;
             db.dm.forEach(i => { td += i.damage; tk += i.kills; });
             db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
+            
             document.getElementById('total-damage-val').innerHTML = `${td} <span>HP</span>`;
             document.getElementById('total-kills-val').innerHTML = `${tk} <span>KILLS</span>`;
-            document.getElementById('global-kd-val').innerText = det === 0 ? tk.toFixed(2) : (tk / det).toFixed(2);
+            let kd = det === 0 ? tk : tk / det;
+            document.getElementById('global-kd-val').innerText = kd.toFixed(2);
+
+            // Динамические шкалы индикаторов прогресса
+            let maxDmgCap = 25000; let maxKillsCap = 200; let maxKdCap = 3.5;
+            document.getElementById('bar-damage').style.width = Math.min((td / maxDmgCap) * 100, 100) + "%";
+            document.getElementById('bar-kills').style.width = Math.min((tk / maxKillsCap) * 100, 100) + "%";
+            document.getElementById('bar-kd').style.width = Math.min((kd / maxKdCap) * 100, 100) + "%";
         }
 
-        function resizeCanvas() {
-            canvas.width = document.getElementById('viewport').clientWidth;
-            canvas.height = document.getElementById('viewport').clientHeight;
+        // VIEW RENDERING: OLD CLASSIC LINES MODE
+        function renderClassicTable() {
+            const container = document.getElementById('classic-table-container');
+            let data = db[currentTab];
+            if (!data || data.length === 0) {
+                container.innerHTML = `<div class="empty-classic">[ CELL STRUCTURE IS EMPTY _ PROTOCOL EMPTY ]</div>`;
+                return;
+            }
+            let html = `<table class="classic-table"><thead><tr>`;
+            if (currentTab === 'dm') {
+                html += `<th>TIMESTAMP</th><th>WEAPON UNIT</th><th>MODE TYPE</th><th>DAMAGE VALUE</th><th>ELIMINATIONS</th><th>INDEX_HASH</th>`;
+            } else if (currentTab === 'vzp') {
+                html += `<th>TIMESTAMP</th><th>NETWORK NODE</th><th>ELIMINATIONS</th><th>DEATH RECORDS</th><th>DAMAGE</th><th>INDEX_HASH</th>`;
+            } else {
+                html += `<th>TIMESTAMP</th><th>ZONE NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HS %</th><th>HIT %</th><th>INDEX_HASH</th>`;
+            }
+            html += `</tr></thead><tbody>`;
+            data.forEach(x => {
+                html += `<tr><td>${x.date} // ${x.time}</td>`;
+                if(currentTab === 'dm') html += `<td>${x.weapon}</td><td>${x.type}</td><td>${x.damage} HP</td><td>${x.kills}</td>`;
+                else if(currentTab === 'vzp') html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td>`;
+                else html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td><td>${x.hs}</td><td>${x.hit}</td>`;
+                html += `<td><button class="delete-line-btn" onclick="deleteClassicLine('${currentTab}', '${x.id}')">[ ERASE ]</button></td></tr>`;
+            });
+            html += `</tbody></table>`; container.innerHTML = html;
         }
 
+        // VIEW RENDERING: GRAPH WEBMESH INTERFACE
+        function resizeCanvas() { if(config.ui !== 'mesh') return; canvas.width = document.getElementById('viewport-mesh').clientWidth; canvas.height = document.getElementById('viewport-mesh').clientHeight; }
+        
         function buildGraph() {
-            nodes = []; links = []; dataPackets = [];
-            const cx = canvas.width / 2; const cy = canvas.height / 2;
+            if(config.ui !== 'mesh') return;
+            nodes = []; links = []; dataPackets = []; const cx = canvas.width / 2; const cy = canvas.height / 2;
 
             if (currentTab === 'dm') {
-                let sessionNode = { id: 'dm_root', label: `MATRIX CORE`, type: 'root', x: cx, y: cy, fx: cx, fy: cy };
-                nodes.push(sessionNode);
+                let rootNode = { id: 'dm_root', label: `MATRIX CORE`, type: 'root', x: cx, y: cy, fx: cx, fy: cy }; nodes.push(rootNode);
                 let weapons = [...new Set(db.dm.map(x => x.weapon))];
                 weapons.forEach((wpn, wIdx) => {
-                    let wNode = { id: `w_${wpn}`, label: wpn, type: 'core', x: cx + (wIdx - (weapons.length-1)/2)*280, y: cy - 130 };
-                    nodes.push(wNode); links.push({ source: sessionNode, target: wNode });
-
+                    let wNode = { id: `w_${wpn}`, label: wpn, type: 'core', x: cx + (wIdx - (weapons.length-1)/2)*280, y: cy - 120 };
+                    nodes.push(wNode); links.push({ source: rootNode, target: wNode });
                     let modes = ['FULL DM', '1X1 DM'];
                     modes.forEach((md, mIdx) => {
-                        let mNode = { id: `m_${wpn}_${md}`, label: md, type: 'subcore', x: wNode.x + (mIdx === 0 ? -100 : 100), y: cy - 30 };
+                        let mNode = { id: `m_${wpn}_${md}`, label: md, type: 'subcore', x: wNode.x + (mIdx === 0 ? -100 : 100), y: cy - 20 };
                         nodes.push(mNode); links.push({ source: wNode, target: mNode });
-
                         let logs = db.dm.filter(x => x.weapon === wpn && x.type === md);
                         logs.forEach((lg, lIdx) => {
                             let perf = lg.type === 'FULL DM' ? (lg.damage > 550 ? 'high' : 'low') : (lg.kills >= 5 ? 'high' : 'low');
-                            let lNode = { id: lg.id, label: `LOG // ${lg.time}`, type: 'datapoint', threat: perf, rawData: lg, category: 'dm', x: mNode.x + (lIdx - (logs.length-1)/2)*90, y: mNode.y + 120 + (lIdx * 12) };
+                            let lNode = { id: lg.id, label: `LOG_${lg.time}`, type: 'datapoint', threat: perf, rawData: lg, category: 'dm', x: mNode.x + (lIdx - (logs.length-1)/2)*90, y: mNode.y + 120 + (lIdx * 12) };
                             nodes.push(lNode); links.push({ source: mNode, target: lNode });
                         });
                     });
@@ -488,13 +556,12 @@
             } else {
                 let arr = db[currentTab]; let servers = [...new Set(arr.map(x => x.server))];
                 servers.forEach((srv, sIdx) => {
-                    let sNode = { id: `srv_${srv}`, label: `NET_NODE: ${srv}`, type: 'core', x: cx + (sIdx - (servers.length-1)/2)*360, y: cy };
-                    nodes.push(sNode);
+                    let sNode = { id: `srv_${srv}`, label: `NET_NODE: ${srv}`, type: 'core', x: cx + (sIdx - (servers.length-1)/2)*340, y: cy }; nodes.push(sNode);
                     let sLogs = arr.filter(x => x.server === srv);
                     sLogs.forEach((lg, lIdx) => {
                         let kd = lg.deaths === 0 ? lg.kills : lg.kills / lg.deaths;
                         let perf = kd >= 2.0 ? 'high' : (kd < 1.0 ? 'low' : 'normal');
-                        let angle = (lIdx / sLogs.length) * Math.PI * 2; let dist = 120 + (lIdx * 12);
+                        let angle = (lIdx / sLogs.length) * Math.PI * 2; let dist = 125 + (lIdx * 10);
                         let lNode = { id: lg.id, label: `DATA_${lg.time}`, type: 'datapoint', threat: perf, rawData: lg, category: currentTab, x: sNode.x + Math.cos(angle) * dist, y: sNode.y + Math.sin(angle) * dist };
                         nodes.push(lNode); links.push({ source: sNode, target: lNode });
                     });
@@ -503,202 +570,178 @@
             links.forEach(l => { if (Math.random() > 0.3) dataPackets.push({ link: l, progress: Math.random(), speed: 0.002 + Math.random()*0.003 }); });
         }
 
-        // Оптимизированная плавная физика графа
         function updatePhysics() {
-            if (draggedNode) return;
+            if (draggedNode || config.ui !== 'mesh') return;
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n1 = nodes[i]; let n2 = nodes[j];
                     let dx = n2.x - n1.x; let dy = n2.y - n1.y; let dist = Math.hypot(dx, dy) || 1;
-                    let minDist = n1.type === 'datapoint' ? 70 : 130;
+                    let minDist = n1.type === 'datapoint' ? 65 : 130;
                     if (dist < minDist) {
-                        let force = (minDist - dist) * 0.015;
-                        n1.x -= (dx / dist) * force; n1.y -= (dy / dist) * force;
-                        n2.x += (dx / dist) * force; n2.y += (dy / dist) * force;
+                        let force = (minDist - dist) * 0.02; n1.x -= (dx / dist) * force; n1.y -= (dy / dist) * force; n2.x += (dx / dist) * force; n2.y += (dy / dist) * force;
                     }
                 }
             }
             links.forEach(link => {
                 let dx = link.target.x - link.source.x; let dy = link.target.y - link.source.y;
-                let dist = Math.hypot(dx, dy) || 1; let targetDist = link.target.type === 'datapoint' ? 80 : 150;
-                let force = (dist - targetDist) * 0.01;
-                if (link.source.type !== 'root') { link.source.x += (dx / dist) * force; link.source.y += (dy / dist) * force; }
+                let dist = Math.hypot(dx, dy) || 1; let targetDist = link.target.type === 'datapoint' ? 80 : 140;
+                let force = (dist - targetDist) * 0.01; if (link.source.type !== 'root') { link.source.x += (dx / dist) * force; link.source.y += (dy / dist) * force; }
                 link.target.x -= (dx / dist) * force; link.target.y -= (dy / dist) * force;
             });
         }
 
         function drawGraph() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // КИБЕР ПАРАЛЛАКС ПОДЛОЖКА
-            ctx.save();
-            ctx.translate(transform.x * 0.15, transform.y * 0.15);
-            ctx.strokeStyle = 'rgba(255, 0, 60, 0.015)'; ctx.lineWidth = 1;
-            for (let x = -3000; x < 4000; x += 80) { ctx.beginPath(); ctx.moveTo(x, -3000); ctx.lineTo(x, 4000); ctx.stroke(); }
-            for (let y = -3000; y < 4000; y += 80) { ctx.beginPath(); ctx.moveTo(-3000, y); ctx.lineTo(4000, y); ctx.stroke(); }
-            ctx.restore();
+            if(config.ui !== 'mesh') return; ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let accentColor = document.documentElement.style.getPropertyValue('--accent').trim() || '#ff003c';
 
             ctx.save(); ctx.translate(transform.x, transform.y); ctx.scale(transform.zoom, transform.zoom);
 
-            // Межвекторные связи фоновых точек ("Паутина")
+            // КРУГОВАЯ ВОЛНА ИМПУЛЬСА ОТ ЯДРА (Ping Radar Waves)
+            pulseRadius += 1.5; if (pulseRadius > 500) pulseRadius = 0;
+            let rootNode = nodes.find(n => n.type === 'root') || nodes.find(n => n.type === 'core');
+            if (rootNode) {
+                ctx.beginPath(); ctx.arc(rootNode.x, rootNode.y, pulseRadius, 0, Math.PI*2);
+                ctx.strokeStyle = `${accentColor}${Math.floor((1 - pulseRadius/500)*35).toString(16).padStart(2,'0')}`;
+                ctx.lineWidth = 1.5; ctx.stroke();
+            }
+
+            // Межвекторные фоновые связи ("Кибер-паутина")
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n1 = nodes[i]; let n2 = nodes[j];
                     if(n1.type === 'datapoint' && n2.type === 'datapoint') {
                         let d = Math.hypot(n2.x - n1.x, n2.y - n1.y);
-                        if(d < 120) {
+                        if(d < 110) {
                             ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y);
-                            ctx.strokeStyle = `rgba(255, 0, 60, ${0.06 * (1 - d/120)})`; ctx.lineWidth = 0.5; ctx.stroke();
+                            ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.lineWidth = 0.5; ctx.stroke();
                         }
                     }
                 }
             }
 
-            // Основные каналы связей
+            // Основные каналы графа
             links.forEach(l => {
                 ctx.beginPath(); ctx.moveTo(l.source.x, l.source.y); ctx.lineTo(l.target.x, l.target.y);
-                ctx.strokeStyle = l.target.type === 'datapoint' ? 'rgba(255,0,60,0.1)' : 'rgba(255,0,60,0.35)';
+                ctx.strokeStyle = l.target.type === 'datapoint' ? `${accentColor}22` : `${accentColor}66`;
                 ctx.lineWidth = l.target.type === 'datapoint' ? 1 : 1.5; ctx.stroke();
             });
 
-            // Бегущие пакеты данных
+            // Пакеты данных
             dataPackets.forEach(p => {
                 p.progress += p.speed; if (p.progress > 1) p.progress = 0;
                 let pkX = p.link.source.x + (p.link.target.x - p.link.source.x) * p.progress;
                 let pkY = p.link.source.y + (p.link.target.y - p.link.source.y) * p.progress;
-                ctx.beginPath(); ctx.arc(pkX, pkY, 2.5, 0, Math.PI*2); ctx.fillStyle = varColor('--accent'); ctx.shadowBlur = 8; ctx.shadowColor = varColor('--accent'); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.beginPath(); ctx.arc(pkX, pkY, 2.5, 0, Math.PI*2); ctx.fillStyle = accentColor; ctx.fill();
             });
 
-            // Ноды (Узлы графа)
+            // Узлы системы
             nodes.forEach(n => {
-                ctx.beginPath(); let radius = 5; let color = '#fff';
-                if (n.type === 'root') { radius = 9; color = varColor('--accent'); }
-                else if (n.type === 'core') { radius = 7; color = '#d60032'; }
-                else if (n.type === 'subcore') { radius = 5.5; color = '#910022'; }
+                ctx.beginPath(); let radius = 4.5; let color = '#fff';
+                if (n.type === 'root') { radius = 9; color = accentColor; }
+                else if (n.type === 'core') { radius = 7; color = accentColor; }
+                else if (n.type === 'subcore') { radius = 5.5; color = '#555'; }
                 else if (n.type === 'datapoint') {
-                    radius = 4;
-                    if (n.threat === 'high') color = varColor('--neon-green');
-                    else if (n.threat === 'low') color = '#2b2b2b';
-                    else color = '#ff8800';
+                    radius = 3.5;
+                    if (n.threat === 'high') color = '#00ff66';
+                    else if (n.threat === 'low') color = '#202020';
+                    else color = '#ff9900';
                 }
-                if (hoveredNode === n) { radius += 2.5; ctx.shadowBlur = 14; ctx.shadowColor = color; }
+                
+                // Подсвечивание нод при прохождении волны импульса
+                let dToPulse = rootNode ? Math.hypot(n.x - rootNode.x, n.y - rootNode.y) : 0;
+                if (Math.abs(dToPulse - pulseRadius) < 15 && n.type === 'datapoint') { radius += 1.5; ctx.shadowBlur = 8; ctx.shadowColor = color; }
+
+                if (hoveredNode === n) { radius += 2.5; ctx.shadowBlur = 12; ctx.shadowColor = color; }
                 ctx.arc(n.x, n.y, radius, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.shadowBlur = 0;
-                ctx.fillStyle = n.type === 'datapoint' ? '#555' : '#fff';
-                ctx.font = n.type === 'root' || n.type === 'core' ? 'bold 10px Consolas' : '9px Consolas';
-                ctx.fillText(n.label, n.x + radius + 6, n.y + 3);
+                ctx.fillStyle = n.type === 'datapoint' ? '#444' : '#fff';
+                ctx.font = '9px Consolas'; ctx.fillText(n.label, n.x + radius + 5, n.y + 3);
             });
 
-            // Клик-эффекты частиц
+            // Эффекты частиц клика
             for (let i = clickParticles.length - 1; i >= 0; i--) {
-                let p = clickParticles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.025;
+                let p = clickParticles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.03;
                 if (p.alpha <= 0) { clickParticles.splice(i, 1); continue; }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = `rgba(255, 0, 60, ${p.alpha})`; ctx.fill();
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = `${accentColor}${Math.floor(p.alpha*255).toString(16).padStart(2,'0')}`; ctx.fill();
             }
             ctx.restore();
         }
 
-        function varColor(name) {
-            return name === '--accent' ? '#ff003c' : '#00ff66';
-        }
-
         function updateLoop() { updatePhysics(); drawGraph(); requestAnimationFrame(updateLoop); }
 
-        function getCanvasMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return { x: (e.clientX - rect.left - transform.x) / transform.zoom, y: (e.clientY - rect.top - transform.y) / transform.zoom };
-        }
-
-        // Анимация взрыва пикселей при клике мышкой
+        // MOUSE AND ZOOM TRACKING
+        function getCanvasMousePos(e) { const rect = canvas.getBoundingClientRect(); return { x: (e.clientX - rect.left - transform.x) / transform.zoom, y: (e.clientY - rect.top - transform.y) / transform.zoom }; }
+        
         window.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
+            if(config.ui !== 'mesh') return; const rect = canvas.getBoundingClientRect();
             if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
                 const m = getCanvasMousePos(e);
-                for(let i=0; i<8; i++) {
-                    clickParticles.push({
-                        x: m.x, y: m.y,
-                        vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
-                        r: 1 + Math.random()*2, alpha: 1
-                    });
-                }
+                for(let i=0; i<6; i++) { clickParticles.push({ x: m.x, y: m.y, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, r: 1+Math.random()*1.5, alpha: 1 }); }
             }
         });
 
         canvas.addEventListener('mousedown', e => {
-            playSound('click');
-            const m = getCanvasMousePos(e); let clickedNode = null;
-            for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 16) { clickedNode = n; break; } }
-            if (clickedNode) { draggedNode = clickedNode; } 
-            else { isPanning = true; panStart.x = e.clientX - transform.x; panStart.y = e.clientY - transform.y; }
+            if(config.ui !== 'mesh') return; const m = getCanvasMousePos(e); let clicked = null;
+            for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 15) { clicked = n; break; } }
+            if (clicked) { draggedNode = clicked; } else { isPanning = true; panStart.x = e.clientX - transform.x; panStart.y = e.clientY - transform.y; }
         });
 
         canvas.addEventListener('mousemove', e => {
-            const m = getCanvasMousePos(e);
+            if(config.ui !== 'mesh') return; const m = getCanvasMousePos(e);
             if (draggedNode) { draggedNode.x = m.x; draggedNode.y = m.y; return; }
             if (isPanning) { transform.x = e.clientX - panStart.x; transform.y = e.clientY - panStart.y; return; }
 
-            let found = null;
-            for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 16) { found = n; break; } }
+            let found = null; for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 15) { found = n; break; } }
             hoveredNode = found; const tooltip = document.getElementById('osintTooltip');
 
             if (hoveredNode && hoveredNode.type === 'datapoint') {
                 let data = hoveredNode.rawData; let html = '';
                 if (hoveredNode.category === 'dm') {
-                    html = `
-                        <div class="node-title">${data.weapon}</div>
-                        <div class="data-row"><span class="field">TYPE:</span><span class="val">${data.type}</span></div>
-                        <div class="data-row"><span class="field">SCORE:</span><span class="val ${hoveredNode.threat==='high'?'high':''}">${data.type==='FULL DM'?data.damage+' HP':data.kills+' K'}</span></div>
-                        <div class="data-row"><span class="field">INDEX:</span><span class="val" style="color:#555;">${data.time}</span></div>
-                    `;
+                    html = `<div class="node-title">${data.weapon}</div>
+                            <div class="data-row"><span class="field">MODE:</span><span class="val">${data.type}</span></div>
+                            <div class="data-row"><span class="field">VALUE:</span><span class="val ${hoveredNode.threat==='high'?'high':''}">${data.type==='FULL DM'?data.damage+' HP':data.kills+' K'}</span></div>`;
                 } else {
                     let kd = data.deaths === 0 ? data.kills.toFixed(2) : (data.kills / data.deaths).toFixed(2);
-                    html = `
-                        <div class="node-title">${hoveredNode.category.toUpperCase()} SESSION</div>
-                        <div class="data-row"><span class="field">SERVER:</span><span class="val">${data.server}</span></div>
-                        <div class="data-row"><span class="field">PERF K/D:</span><span class="val ${kd>=2?'high':''}">${kd}</span></div>
-                        <div class="data-row"><span class="field">DMG DONE:</span><span class="val">${data.damage} HP</span></div>
-                        <div class="data-row"><span class="field">INDEX:</span><span class="val" style="color:#555;">${data.time}</span></div>
-                    `;
+                    html = `<div class="node-title">${hoveredNode.category.toUpperCase()} NODE</div>
+                            <div class="data-row"><span class="field">GRID:</span><span class="val">${data.server}</span></div>
+                            <div class="data-row"><span class="field">K/D:</span><span class="val ${kd>=2?'high':''}">${kd}</span></div>
+                            <div class="data-row"><span class="field">DAMAGE:</span><span class="val">${data.damage} HP</span></div>`;
                 }
-                tooltip.innerHTML = html; tooltip.style.display = 'block'; tooltip.style.transform = 'scale(1)';
+                tooltip.innerHTML = html; tooltip.style.display = 'block';
                 tooltip.style.left = (e.clientX - canvas.getBoundingClientRect().left + 15) + 'px';
                 tooltip.style.top = (e.clientY - canvas.getBoundingClientRect().top + 15) + 'px';
-            } else { tooltip.style.display = 'none'; tooltip.style.transform = 'scale(0.95)'; }
+            } else { tooltip.style.display = 'none'; }
         });
 
         window.addEventListener('mouseup', () => { draggedNode = null; isPanning = false; });
-        canvas.addEventListener('wheel', e => {
-            e.preventDefault();
-            if (e.deltaY < 0) transform.zoom = Math.min(transform.zoom * 1.06, 2.5);
-            else transform.zoom = Math.max(transform.zoom / 1.06, 0.4);
-        });
+        canvas.addEventListener('wheel', e => { e.preventDefault(); if (e.deltaY < 0) transform.zoom = Math.min(transform.zoom * 1.06, 2.5); else transform.zoom = Math.max(transform.zoom / 1.06, 0.4); });
 
         canvas.addEventListener('dblclick', e => {
-            const m = getCanvasMousePos(e); let targetNode = null;
-            for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 16 && n.type === 'datapoint') { targetNode = n; break; } }
-            if (targetNode) {
-                for(let i=0; i<20; i++) { clickParticles.push({ x: targetNode.x, y: targetNode.y, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, r: 1 + Math.random()*2.5, alpha: 1 }); }
-                let idxInDb = db[targetNode.category].findIndex(x => x.id === targetNode.id);
-                if(idxInDb !== -1) db[targetNode.category].splice(idxInDb, 1);
+            if(config.ui !== 'mesh') return; const m = getCanvasMousePos(e); let target = null;
+            for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 15 && n.type === 'datapoint') { target = n; break; } }
+            if (target) {
+                let idx = db[target.category].findIndex(x => x.id === target.id);
+                if(idx !== -1) db[target.category].splice(idx, 1);
                 document.getElementById('osintTooltip').style.display = 'none';
-                playSound('wipe'); saveDB();
+                playSound('wipe'); pushLog('DESTROY', 'DELETED NODE LOG FROM CANV MESH'); saveDB();
             }
         });
 
+        // COUNTDOWN TIMER
         function startCustomTimer() {
             let iv = parseInt(document.getElementById('custom-minutes').value); if (!iv || iv <= 0) return;
-            playSound('success'); clearInterval(countdownInterval);
-            document.getElementById('timer-box').classList.remove('alert'); let sec = iv * 60;
+            playSound('success'); clearInterval(countdownInterval); document.getElementById('timer-box').classList.remove('alert'); let sec = iv * 60;
+            pushLog('TIMER', `COUNTDOWN RE-ARMED FOR ${iv} MINUTES`);
             countdownInterval = setInterval(() => {
                 sec--; let m = Math.floor(sec / 60); let s = sec % 60;
                 document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
                 if (sec <= 45 && sec > 0) document.getElementById('timer-box').classList.add('alert');
-                if (sec <= 0) { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; }
+                if (sec <= 0) { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; pushLog('WARNING', 'TIMER COUNTER EXPIRED_'); }
             }, 1000);
         }
-        function stopTimer() { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; }
+        function stopTimer() { clearInterval(countdownInterval); document.getElementById('timer-display').innerText = "00:00"; document.getElementById('timer-box').classList.remove('alert'); }
 
-        window.addEventListener('resize', () => { resizeCanvas(); buildGraph(); });
-        resizeCanvas(); updateDmFields(); updateOverallStats(); buildGraph(); updateLoop();
+        window.addEventListener('resize', () => { resizeCanvas(); if(config.ui === 'mesh') buildGraph(); });
+        updateDmFields(); updateOverallStats(); updateLoop();
     </script>
 </body>
 </html>
