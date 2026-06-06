@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERRY // NEXUS REAPER v4.5</title>
+    <title>TERRY // NEXUS REAPER v4.6</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -174,6 +174,49 @@
         .close-modal-btn { background: transparent; border: 1px solid #333; color: #fff; width: 100%; padding: 8px; margin-top: 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
         .close-modal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+        /* ГИПЕР-ДИЗАЙН ДЛЯ ПОЛЗУНКОВ (RANGE CUSTOM INPUTS) */
+        input[type="range"].cyber-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            cursor: pointer;
+            height: 24px;
+        }
+        input[type="range"].cyber-slider:focus {
+            outline: none;
+        }
+        /* Линия трека ползунка */
+        input[type="range"].cyber-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            background: #0d0d0d;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+        }
+        /* Сам бегунок (Thumb) */
+        input[type="range"].cyber-slider::-webkit-slider-thumb {
+            height: 14px;
+            width: 8px;
+            background: #ffffff;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -6px;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        input[type="range"].cyber-slider:active::-webkit-slider-thumb {
+            transform: scaleY(1.2);
+            background: var(--accent);
+        }
+        /* Стили трека для Firefox */
+        input[type="range"].cyber-slider::-moz-range-track {
+            width: 100%; height: 4px; background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        input[type="range"].cyber-slider::-moz-range-thumb {
+            height: 14px; width: 8px; background: #fff; border: 1px solid var(--accent); cursor: pointer;
+        }
+
         .osint-tooltip {
             position: absolute; background: rgba(3, 1, 1, 0.98); border: 1px solid var(--accent); padding: 12px; display: none; pointer-events: none; z-index: 1000;
             box-shadow: 0 0 20px rgba(255, 0, 60, 0.3); width: 230px; backdrop-filter: blur(8px);
@@ -204,7 +247,7 @@
 
     <div id="boot-screen">
         <div class="boot-loader">
-            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.5...<br></div>
+            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.6...<br></div>
             <div class="progress-bar-container"><div class="progress-fill" id="boot-progress"></div></div>
         </div>
     </div>
@@ -224,7 +267,7 @@
     </div>
 
     <div class="top-bar">
-        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.5</div>
+        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.6</div>
         <div class="header-actions">
             <div class="profile-badge">OPERATIVE: <span id="profile-display-name">DARK_CRYPTO</span></div>
             <button class="settings-btn" onclick="toggleModal(true)">[ SETTINGS_ ]</button>
@@ -338,11 +381,11 @@
             </div>
             <div class="setting-row">
                 <label>SOUND EFFECTS VOLUME</label>
-                <input type="range" id="volume-fx" min="0" max="100" value="40" oninput="applySettings()">
+                <input type="range" id="volume-fx" class="cyber-slider" min="0" max="100" value="40" oninput="applySettings()">
             </div>
             <div class="setting-row">
                 <label>BACKGROUND SERVER HUM VOLUME</label>
-                <input type="range" id="volume-bg" min="0" max="100" value="15" oninput="applySettings()">
+                <input type="range" id="volume-bg" class="cyber-slider" min="0" max="100" value="15" oninput="applySettings()">
             </div>
             <button class="close-modal-btn" onclick="toggleModal(false)">[ STORE_CHANGES ]</button>
         </div>
@@ -398,7 +441,6 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.25);
         }
 
-        // HOTKEY BINDING (L + T)
         window.addEventListener('keydown', e => {
             let key = e.key.toLowerCase(); keysPressed[key] = true;
             if ((keysPressed['l'] || keysPressed['д']) && (keysPressed['t'] || keysPressed['е'])) {
@@ -423,7 +465,7 @@
             }
         }
 
-        // ДВИЖОК СКАНЕРА СКРИНШОТОВ (OCR TESSERACT ENGINE)
+        // ОБНОВЛЕННЫЙ ОПТИМИЗИРОВАННЫЙ ДВИЖОК СКАНЕРА (OCR TESSERACT v4.6)
         async function handleOcrFile(file) {
             if (!file) return;
             playSound('click');
@@ -435,7 +477,6 @@
             try {
                 const worker = await Tesseract.createWorker('rus+eng');
                 
-                // Отслеживание прогресса
                 worker.logger = (m) => {
                     if (m.status === 'recognizing text') {
                         let percent = Math.floor(m.progress * 100);
@@ -451,41 +492,35 @@
                 progressBar.style.width = '0%';
                 statusText.innerText = "ИЛИ КЛИКНИ / CTRL+V ИЗ БУФЕРА";
 
-                // Парсим строки
+                // Очистка и нормализация эталонного имени пользователя
+                let cleanTarget = config.username.toUpperCase().replace(/[\s_\-\.]/g, '');
+                
                 let lines = text.split('\n');
-                let targetUser = config.username.toUpperCase().replace('_', '');
                 let foundLine = null;
                 let totalLinesCount = 0;
 
-                // Считаем сколько всего игроков распозналось, чтобы понять тип матча
-                lines.forEach(l => {
-                    let clean = l.replace(/[\s_]/g, '');
-                    if (clean.length > 3 && !clean.includes('DMGLOW') && !clean.includes('RELOAD')) {
+                // Поиск строки с совпадением
+                for (let l of lines) {
+                    let cleanLine = l.replace(/[\s_\-\.]/g, '');
+                    if (cleanLine.length > 3 && !cleanLine.includes('DMGLOW') && !cleanLine.includes('RELOAD')) {
                         totalLinesCount++;
                     }
-                    if (clean.includes(targetUser)) {
+                    if (cleanLine.includes(cleanTarget) || cleanLine.includes('CRYP') || cleanLine.includes('DARK')) {
                         foundLine = l;
+                        break;
                     }
-                });
-
-                if (!foundLine) {
-                    // Страховочный поиск по ключевым кускам слова CRYPTO
-                    foundLine = lines.find(l => l.includes('CRYP') || l.includes('DAR'));
                 }
 
                 if (foundLine) {
-                    // Извлекаем все числа из строки игрока
+                    // Извлекаем абсолютно все блоки цифр
                     let numbers = foundLine.match(/\d+/g);
                     if (numbers && numbers.length >= 3) {
                         let kills = parseInt(numbers[0]) || 0;
-                        let hitPercent = parseInt(numbers[1]) || 0;
-                        let hsPercent = parseInt(numbers[2]) || 0;
                         let damage = parseInt(numbers[numbers.length - 1]) || 0;
 
-                        // Автоопределение типа DM матча по количеству строк на скрине
+                        // Автоопределение типа матча (если строк много - FULL DM, если мало - 1X1)
                         let inferredType = totalLinesCount > 3 ? "FULL DM" : "1X1 DM";
 
-                        // Пушим в базу
                         db.dm.push({
                             id: Math.random().toString(36).substring(2, 11),
                             date: new Date().toLocaleDateString('ru-RU'),
@@ -499,13 +534,19 @@
                         playSound('success');
                         triggerGlitchEvent();
                         pushLog('OCR_SUCCESS', `EXTRACTED: ${kills} KILLS | ${damage} DMG | MODE: ${inferredType}`);
-                        saveDB();
+                        
+                        // Сразу переключаем на вкладку DM, чтобы пользователь увидел результат
+                        if (currentTab !== 'dm') {
+                            switchTab('dm');
+                        } else {
+                            saveDB();
+                        }
                     } else {
-                        alert("СТРОКА НАЙДЕНА, НО НЕ УДАЛОСЬ РАЗОБРАТЬ ЦИФРЫ СТАТИСТИКИ.");
+                        alert("СТРОКА НАЙДЕНА, НО СТАТИСТИКА КИЛЛОВ/УРОНА СМАЗАНА. ПОПРОБУЙТЕ ДРУГОЙ СКРИНШОТ.");
                         pushLog('OCR_ERROR', 'FAILED TO PARSE NUMERIC DATA CHUNKS');
                     }
                 } else {
-                    alert(`НИК ${config.username} НЕ НАЙДЕН НА СКРИНШОТЕ. ПРОВЕРЬТЕ НАСТРОЙКИ ПРОФИЛЯ.`);
+                    alert(`НИК ${config.username} НЕ ОБНАРУЖЕН НА СКРИНЕ. УБЕДИТЕСЬ, ЧТО ИМЯ В ПРОФИЛЕ СОВПАДАЕТ С ИГРОВЫМ.`);
                     pushLog('OCR_FAIL', 'USER TARGET LOG NOT FOUND IN CAPTURED TEXT');
                 }
 
@@ -516,7 +557,6 @@
             }
         }
 
-        // Поддержка Paste (Ctrl+V) для скриншотов
         window.addEventListener('paste', e => {
             let items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let index in items) {
@@ -527,7 +567,6 @@
             }
         });
 
-        // Drag and drop логика
         const dropZone = document.getElementById('ocr-zone');
         ['dragenter', 'dragover'].forEach(name => {
             dropZone.addEventListener(name, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); }, false);
@@ -541,10 +580,9 @@
         });
 
 
-        // DOM INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             const logsContainer = document.getElementById('boot-logs'); const progressFill = document.getElementById('boot-progress');
-            const lines = ["NEXUS CORE ENGINE v4.5 CAPTURED.", "OCR INTEL INJECTOR MOUNTED.", "HOTKEY BIND_ENGINE INJECTED [L+T]."];
+            const lines = ["NEXUS CORE ENGINE v4.6 CAPTURED.", "OCR INTEL INJECTOR UPGRADED.", "SLIDER INTERFACES RE-WIRED."];
             let lineIdx = 0, prog = 0;
             let iv = setInterval(() => {
                 if (lineIdx < lines.length) { logsContainer.innerHTML += lines[lineIdx] + "<br>"; lineIdx++; }
@@ -906,7 +944,6 @@
             link.href = expCanvas.toDataURL(); link.click(); pushLog('EXPORT', 'BLACK_FILE GRAPHIC OVERLAY EXPORTED.');
         }
 
-        // TIMER SYSTEMS
         function startCustomTimer() {
             let iv = parseInt(document.getElementById('custom-minutes').value); if (!iv || iv <= 0) return;
             playSound('success'); clearInterval(countdownInterval); document.getElementById('timer-box').classList.remove('alert'); let sec = iv * 60;
