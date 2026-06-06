@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERRY // APEX HUD v3.0</title>
+    <title>TERRY // NEXUS REAPER v4.0</title>
     <style>
         :root {
             --bg: #020202;
-            --panel: rgba(5, 2, 2, 0.7);
+            --panel: rgba(5, 2, 2, 0.75);
             --panel-blur: blur(20px);
             --accent: #ff003c;
             --accent-glow: rgba(255, 0, 60, 0.8);
@@ -74,6 +74,7 @@
         .overall-card .value span { color: var(--accent); text-shadow: 0 0 5px var(--accent); font-size: 0.8rem; }
         .stat-bar { width: 100%; height: 3px; background: rgba(255,255,255,0.05); margin-top: 8px; position: relative; overflow: hidden; }
         .stat-bar-fill { height: 100%; background: var(--accent); width: 0%; box-shadow: 0 0 5px var(--accent); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .weapon-icon-display { font-size: 0.8rem; color: var(--accent); opacity: 0.7; font-weight: normal; margin-left: 8px; letter-spacing: 0; }
 
         /* CONTROLS HUD */
         .hud-control-container {
@@ -160,19 +161,38 @@
         .osint-tooltip .data-row .field { color: #555; } .osint-tooltip .data-row .val { color: #fff; font-weight: bold; }
         .osint-tooltip .data-row .val.high { color: var(--neon-green); }
 
-        .map-instruction { position: absolute; bottom: 12px; right: 15px; font-size: 0.65rem; color: #444; letter-spacing: 1px; pointer-events: none; z-index: 8; }
+        .map-instruction { position: absolute; bottom: 12px; right: 15px; font-size: 0.65rem; color: #444; letter-spacing: 1px; pointer-events: none; z-index: 8; text-align: right; line-height: 1.5; }
         .map-instruction span { color: var(--accent); }
-        .purge-btn { position: absolute; bottom: 35px; right: 15px; background: rgba(20, 2, 4, 0.8); border: 1px dashed var(--accent); color: var(--accent); padding: 6px 12px; font-size: 0.65rem; font-weight: bold; cursor: pointer; z-index: 8; display:none; }
+        .purge-btn { position: absolute; bottom: 45px; right: 15px; background: rgba(20, 2, 4, 0.8); border: 1px dashed var(--accent); color: var(--accent); padding: 6px 12px; font-size: 0.65rem; font-weight: bold; cursor: pointer; z-index: 8; display:none; }
         .purge-btn:hover { background: var(--accent); color: #000; }
+        .export-btn { position: absolute; bottom: 12px; right: 15px; background: rgba(0,0,0,0.8); border: 1px solid var(--accent); color: #fff; padding: 6px 14px; font-size: 0.65rem; font-weight: bold; cursor: pointer; z-index: 8; box-shadow: 0 0 10px var(--accent-dim); }
+        .export-btn:hover { background: var(--accent); color:#000; box-shadow: 0 0 15px var(--accent); }
+
+        /* HACKING TERMINAL SIMULATOR OVERLAY */
+        #hacker-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(2, 5, 2, 0.96);
+            z-index: 300000; display: none; flex-direction: column; padding: 30px; overflow: hidden;
+            color: var(--neon-green); font-size: 0.75rem; line-height: 1.5; text-shadow: 0 0 4px rgba(0, 255, 102, 0.5);
+        }
+        #hacker-overlay .terminal-header { border-bottom: 1px solid var(--neon-green); padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; font-weight: bold; }
+        #hacker-console-output { flex: 1; overflow-y: auto; word-break: break-all; }
     </style>
 </head>
 <body>
 
     <div id="boot-screen">
         <div class="boot-loader">
-            <div id="boot-logs">INIT SECURE TERRY_APEX MESH v3.0...<br></div>
+            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.0...<br></div>
             <div class="progress-bar-container"><div class="progress-fill" id="boot-progress"></div></div>
         </div>
+    </div>
+
+    <div id="hacker-overlay">
+        <div class="terminal-header">
+            <div>[ OVERLAY_INJECTOR_ACTIVE: SIMULATING SYSTEM_BREACH ]</div>
+            <div>PRESS [ L + T ] TO DISCONNECT</div>
+        </div>
+        <div id="hacker-console-output"></div>
     </div>
 
     <div class="ascii-logo">
@@ -182,7 +202,7 @@
     </div>
 
     <div class="top-bar">
-        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# MESH_TERMINAL_v3</div>
+        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.0</div>
         <div class="header-actions">
             <button class="settings-btn" onclick="toggleModal(true)">[ SETTINGS_ ]</button>
             <div class="status">[ ONLINE ]</div>
@@ -226,7 +246,10 @@
 
         <div class="input-area">
             <div id="panel-dm" class="input-group">
-                <select id="dm-weapon"><option value="SPECIAL RIFLE">SPECIAL RIFLE</option><option value="REVOLVER">REVOLVER</option></select>
+                <select id="dm-weapon">
+                    <option value="SPECIAL RIFLE">SPECIAL RIFLE ︻╦╤─</option>
+                    <option value="REVOLVER">REVOLVER ▄︻デ╤═─</option>
+                </select>
                 <select id="dm-type" onchange="updateDmFields()"><option value="FULL DM">FULL DM</option><option value="1X1 DM">1X1 DM</option></select>
                 <div id="dm-dynamic-container" style="display: flex; flex:1;"><input type="number" id="dm-damage" placeholder="DAMAGE"></div>
                 <button class="action-btn" onclick="addDmLog()">+</button>
@@ -249,6 +272,7 @@
         <div class="network-viewport" id="viewport-mesh">
             <canvas id="netCanvas"></canvas>
             <div id="glitch-overlay"></div>
+            <button class="export-btn" id="export-btn-element" onclick="generateBlackFileCard()">[ GENERATE_BLACK_FILE ]</button>
         </div>
 
         <div class="classic-lines-viewport" id="viewport-classic">
@@ -258,7 +282,10 @@
         <div class="terminal-log-panel" id="term-logs"></div>
 
         <div class="osint-tooltip" id="osintTooltip"></div>
-        <div class="map-instruction" id="instructions-box">[ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK NODE: <span>ERASE MATCH</span> ]</div>
+        <div class="map-instruction" id="instructions-box">
+            [ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK: <span>ERASE NODE</span> ]<br>
+            [ OVERLAY INJECTOR MOD: PRESS <span>L + T</span> ]
+        </div>
         <button class="purge-btn" id="purge-btn-element" onclick="purgeCurrentGraph()">[ PURGE_CURRENT_GRID ]</button>
     </div>
 
@@ -294,6 +321,17 @@
         let nodes = []; let links = []; let hoveredNode = null; let draggedNode = null;
         let transform = { x: 0, y: 0, zoom: 1 }; let isPanning = false; let panStart = { x: 0, y: 0 };
         let dataPackets = []; let clickParticles = []; let pulseRadius = 0;
+        let mouseGlobal = { x: 0, y: 0 };
+
+        // ИНЖЕКТОР СИМУЛЯЦИИ КОДА
+        let hackerInterval = null; let keysPressed = {};
+        const hackerPhrases = [
+            "CONNECTING TO MAJESTIC SECURE PROTOCOL...", "BYPASSING ANTICHEAT SHIELD [STATUS: SUCCESS]",
+            "DECRYPTING MATCH PACKETS...", "INJECTING TERRY_NEXUS_REAPER COMPONENT...",
+            "LOCAL STORAGE DATABASE FETCHING... [OK]", "SCANNING ACTIVE NODE PORTS...",
+            "WARNING: SYSTEM REAPER ENGAGED.", "DUMPING COMBINED DAMAGE STATISTICS...",
+            "XREF GRID RE-INDEXING...", "PARSING REVOLVER HITBOX COEFFICIENT..."
+        ];
 
         // SOUND ARCHITECTURE
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -303,7 +341,7 @@
             if (bgHumNode) return;
             try {
                 bgHumNode = audioCtx.createOscillator(); bgHumGain = audioCtx.createGain();
-                bgHumNode.type = 'sine'; bgHumNode.frequency.setValueAtTime(55, audioCtx.currentTime); // Low engine server hum
+                bgHumNode.type = 'sine'; bgHumNode.frequency.setValueAtTime(55, audioCtx.currentTime);
                 let filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(80, audioCtx.currentTime);
                 bgHumGain.gain.setValueAtTime(config.volBg / 1000, audioCtx.currentTime);
                 bgHumNode.connect(filter); filter.connect(bgHumGain); bgHumGain.connect(audioCtx.destination);
@@ -329,14 +367,39 @@
             osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.25);
         }
 
-        // BOOT LOADING SYSTEM
+        // HOTKEY BINDING (L + T)
+        window.addEventListener('keydown', e => {
+            let key = e.key.toLowerCase(); keysPressed[key] = true;
+            if ((keysPressed['l'] || keysPressed['д']) && (keysPressed['t'] || keysPressed['е'])) {
+                e.preventDefault(); toggleHackerOverlay();
+            }
+        });
+        window.addEventListener('keyup', e => { delete keysPressed[e.key.toLowerCase()]; });
+
+        function toggleHackerOverlay() {
+            const overlay = document.getElementById('hacker-overlay');
+            const out = document.getElementById('hacker-console-output');
+            playSound('success');
+            if (overlay.style.display === 'flex') {
+                overlay.style.display = 'none'; clearInterval(hackerInterval); pushLog('SYSTEM', 'DISCONNECTED OVERLAY MODE');
+            } else {
+                overlay.style.display = 'flex'; out.innerHTML = ''; pushLog('SYSTEM', 'LAUNCHED OVERLAY SIMULATION MODE');
+                hackerInterval = setInterval(() => {
+                    let randStr = Math.random().toString(16).substring(2, 14).toUpperCase() + " // " + hackerPhrases[Math.floor(Math.random() * hackerPhrases.length)];
+                    out.innerHTML += `<div>[${new Date().toLocaleTimeString()}] 0x${Math.floor(Math.random()*99999).toString(16).toUpperCase()} -> ${randStr}</div>`;
+                    out.scrollTop = out.scrollHeight;
+                }, 70);
+            }
+        }
+
+        // BOOT SYSTEM
         window.addEventListener('DOMContentLoaded', () => {
             const logsContainer = document.getElementById('boot-logs'); const progressFill = document.getElementById('boot-progress');
-            const lines = ["BOOT_ LOADER v3.0 ONLINE...", "MAP SYSTEM INTERACTION LOADED.", "CONFIG PROTOCOL INITIATED...", "SERVER_HUM_NODE GENERATED.", "COMPILING UI VIEWS..."];
+            const lines = ["NEXUS CORE ENGINE v4.0 CAPTURED.", "GRID COORDINATE RADAR SYSTEM ACTIVATED.", "HOTKEY BIND_ENGINE INJECTED [L+T].", "CREATING BLACK_FILE EXPORTER..."];
             let lineIdx = 0, prog = 0;
             let iv = setInterval(() => {
                 if (lineIdx < lines.length) { logsContainer.innerHTML += lines[lineIdx] + "<br>"; lineIdx++; }
-                prog += 20; progressFill.style.width = prog + "%";
+                prog += 25; progressFill.style.width = prog + "%";
                 if (prog >= 100) {
                     clearInterval(iv);
                     setTimeout(() => {
@@ -344,31 +407,26 @@
                         setTimeout(() => { document.getElementById('boot-screen').style.display = 'none'; try { audioCtx.resume(); initBackgroundHum(); }catch(e){} }, 500);
                     }, 200);
                 }
-            }, 120);
+            }, 100);
             
-            // Заполнение настроек из кэша
             document.getElementById('setting-ui').value = config.ui;
             document.getElementById('setting-theme').value = config.theme;
             document.getElementById('volume-fx').value = config.volFx;
             document.getElementById('volume-bg').value = config.volBg;
             applyThemeStyles(); renderActiveView();
             
-            // Механические клики в поля ввода
             document.querySelectorAll('input, select').forEach(el => {
                 el.addEventListener('input', () => playSound('click'));
                 el.addEventListener('focus', () => playSound('click'));
             });
         });
 
-        // LIVE TERMINAL LOGS OUTPUT
         function pushLog(node, msg) {
             const container = document.getElementById('term-logs');
-            const time = new Date().toLocaleTimeString('ru-RU');
-            container.innerHTML += `<div class="term-line">[${time}] <span>${node}:</span> ${msg.toUpperCase()}</div>`;
+            container.innerHTML += `<div class="term-line">[${new Date().toLocaleTimeString('ru-RU')}] <span>${node}:</span> ${msg.toUpperCase()}</div>`;
             if (container.children.length > 5) container.removeChild(container.children[0]);
         }
 
-        // CONFIG CONTROL
         function toggleModal(open) { playSound('click'); document.getElementById('settings-modal').classList.toggle('active', open); }
         
         function applySettings() {
@@ -377,7 +435,6 @@
             config.volFx = parseInt(document.getElementById('volume-fx').value);
             config.volBg = parseInt(document.getElementById('volume-bg').value);
             localStorage.setItem('cyberHudConfig', JSON.stringify(config));
-            
             if (bgHumGain) { bgHumGain.gain.setValueAtTime(config.volBg / 1000, audioCtx.currentTime); }
             applyThemeStyles(); renderActiveView();
         }
@@ -397,19 +454,15 @@
             const meshView = document.getElementById('viewport-mesh');
             const classicView = document.getElementById('viewport-classic');
             const purgeBtn = document.getElementById('purge-btn-element');
-
             if (config.ui === 'mesh') {
                 meshView.style.display = 'block'; classicView.style.display = 'none'; purgeBtn.style.display = 'none';
-                document.getElementById('instructions-box').innerHTML = '[ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK NODE: <span>ERASE MATCH</span> ]';
                 resizeCanvas(); buildGraph();
             } else {
                 meshView.style.display = 'none'; classicView.style.display = 'block'; purgeBtn.style.display = 'block';
-                document.getElementById('instructions-box').innerHTML = '[ DATA_VIEW: <span>CLASSIC STRUCTURED MATRIX LINES</span> ]';
                 renderClassicTable();
             }
         }
 
-        // SAVE AND LOAD SYSTEM
         function saveDB() {
             localStorage.setItem('cyberStatsDB', JSON.stringify(db));
             updateOverallStats();
@@ -417,16 +470,14 @@
         }
 
         function triggerGlitchEvent() {
-            const go = document.getElementById('glitch-overlay');
-            go.style.top = Math.random() * 100 + "%"; go.style.display = 'block';
+            const go = document.getElementById('glitch-overlay'); go.style.top = Math.random() * 100 + "%"; go.style.display = 'block';
             setTimeout(() => go.style.display = 'none', 120);
         }
 
         function purgeCurrentGraph() {
             if (confirm(`WIPE ALL LOGS INSIDE ${currentTab.toUpperCase()} PROTOCOL?`)) {
                 db[currentTab] = []; document.getElementById('osintTooltip').style.display = 'none';
-                pushLog('SECURITY', `PURGED GRID DATA FOR ${currentTab}`);
-                playSound('wipe'); saveDB();
+                pushLog('SECURITY', `PURGED GRID DATA FOR ${currentTab}`); playSound('wipe'); saveDB();
             }
         }
 
@@ -437,23 +488,23 @@
             document.getElementById('panel-dm').style.display = tabName === 'dm' ? 'flex' : 'none';
             document.getElementById('panel-vzp').style.display = tabName === 'vzp' ? 'flex' : 'none';
             document.getElementById('panel-capt').style.display = tabName === 'capt' ? 'flex' : 'none';
-            pushLog('NAV', `MOVED TO PROTOCOL SECTOR: ${tabName}`);
             transform = { x: 0, y: 0, zoom: 1 }; saveDB();
         }
 
-        function getTodayDate() { return new Date().toLocaleDateString('ru-RU'); }
-        function getCurrentTimeStr() { const n = new Date(); return `${n.getHours() < 10 ? '0'+n.getHours() : n.getHours()}:${n.getMinutes() < 10 ? '0'+n.getMinutes() : n.getMinutes()}`; }
+        function getWeaponIcon(weapon) {
+            return weapon === 'SPECIAL RIFLE' ? '︻╦╤─' : '▄︻デ╤═─';
+        }
+
         function updateDmFields() {
             const m = document.getElementById('dm-type').value;
             document.getElementById('dm-dynamic-container').innerHTML = m === 'FULL DM' ? `<input type="number" id="dm-damage" placeholder="DAMAGE">` : `<input type="number" id="dm-kills" placeholder="KILLS">`;
         }
 
-        // LOG INPUT GENERATORS
         function addDmLog() {
             const weapon = document.getElementById('dm-weapon').value; const type = document.getElementById('dm-type').value;
             let damage = parseInt(document.getElementById('dm-damage')?.value) || 0; let kills = parseInt(document.getElementById('dm-kills')?.value) || 0;
-            db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), weapon, type, damage, kills });
-            playSound('success'); triggerGlitchEvent(); pushLog('DM_STORE', `ADDED RECORD -> ${weapon} (${type})`); saveDB();
+            db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), weapon, type, damage, kills });
+            playSound('success'); triggerGlitchEvent(); pushLog('DM_STORE', `ADDED RECORD -> ${weapon}`); saveDB();
             if(document.getElementById('dm-damage')) document.getElementById('dm-damage').value = '';
             if(document.getElementById('dm-kills')) document.getElementById('dm-kills').value = '';
         }
@@ -462,7 +513,7 @@
             const server = document.getElementById('vzp-server').value.trim().toUpperCase(); const kills = parseInt(document.getElementById('vzp-kills').value) || 0;
             const deaths = parseInt(document.getElementById('vzp-deaths').value) || 0; const damage = parseInt(document.getElementById('vzp-damage').value) || 0;
             if(!server) return;
-            db.vzp.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), server, kills, deaths, damage });
+            db.vzp.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), server, kills, deaths, damage });
             playSound('success'); triggerGlitchEvent(); pushLog('VZP_STORE', `NODE '${server}' PACKET SENT`); saveDB();
             document.getElementById('vzp-server').value=''; document.getElementById('vzp-kills').value=''; document.getElementById('vzp-deaths').value=''; document.getElementById('vzp-damage').value='';
         }
@@ -472,55 +523,49 @@
             const deaths = parseInt(document.getElementById('capt-deaths').value) || 0; const damage = parseInt(document.getElementById('capt-damage').value) || 0;
             const hs = document.getElementById('capt-hs').value ? document.getElementById('capt-hs').value + '%' : '0%'; const hit = document.getElementById('capt-hit').value ? document.getElementById('capt-hit').value + '%' : '0%';
             if(!server) return;
-            db.capt.push({ id: Math.random().toString(36).substring(2, 11), date: getTodayDate(), time: getCurrentTimeStr(), server, kills, deaths, damage, hs, hit });
-            playSound('success'); triggerGlitchEvent(); pushLog('CAPT_STORE', `CAPTURED DATA SENT FOR GRID: ${server}`); saveDB();
+            db.capt.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), server, kills, deaths, damage, hs, hit });
+            playSound('success'); triggerGlitchEvent(); pushLog('CAPT_STORE', `CAPTURED ZONE GRID: ${server}`); saveDB();
             document.getElementById('capt-server').value=''; document.getElementById('capt-kills').value=''; document.getElementById('capt-deaths').value=''; document.getElementById('capt-damage').value=''; document.getElementById('capt-hs').value=''; document.getElementById('capt-hit').value='';
         }
 
         function deleteClassicLine(category, id) {
             let idx = db[category].findIndex(x => x.id === id);
-            if(idx !== -1) { db[category].splice(idx, 1); playSound('wipe'); pushLog('DESTROY', `REMOVED DIRECT RECORD LINE`); saveDB(); }
+            if(idx !== -1) { db[category].splice(idx, 1); playSound('wipe'); saveDB(); }
         }
 
-        // METRICS GRAPHICS UPDATER
         function updateOverallStats() {
             let td = 0, tk = 0, det = 0;
             db.dm.forEach(i => { td += i.damage; tk += i.kills; });
             db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             
-            document.getElementById('total-damage-val').innerHTML = `${td} <span>HP</span>`;
+            // Расчет текстового логотипа самого популярного оружия для сводки
+            let specCount = db.dm.filter(x => x.weapon === 'SPECIAL RIFLE').length;
+            let revCount = db.dm.filter(x => x.weapon === 'REVOLVER').length;
+            let bestWpnIcon = specCount === 0 && revCount === 0 ? '' : (specCount >= revCount ? ' ︻╦╤─' : ' ▄︻デ╤═─');
+
+            document.getElementById('total-damage-val').innerHTML = `${td} <span>HP ${bestWpnIcon}</span>`;
             document.getElementById('total-kills-val').innerHTML = `${tk} <span>KILLS</span>`;
             let kd = det === 0 ? tk : tk / det;
             document.getElementById('global-kd-val').innerText = kd.toFixed(2);
 
-            // Динамические шкалы индикаторов прогресса
             let maxDmgCap = 25000; let maxKillsCap = 200; let maxKdCap = 3.5;
             document.getElementById('bar-damage').style.width = Math.min((td / maxDmgCap) * 100, 100) + "%";
             document.getElementById('bar-kills').style.width = Math.min((tk / maxKillsCap) * 100, 100) + "%";
             document.getElementById('bar-kd').style.width = Math.min((kd / maxKdCap) * 100, 100) + "%";
         }
 
-        // VIEW RENDERING: OLD CLASSIC LINES MODE
         function renderClassicTable() {
-            const container = document.getElementById('classic-table-container');
-            let data = db[currentTab];
-            if (!data || data.length === 0) {
-                container.innerHTML = `<div class="empty-classic">[ CELL STRUCTURE IS EMPTY _ PROTOCOL EMPTY ]</div>`;
-                return;
-            }
+            const container = document.getElementById('classic-table-container'); let data = db[currentTab];
+            if (!data || data.length === 0) { container.innerHTML = `<div class="empty-classic">[ CELL STRUCTURE PROTOCOL EMPTY ]</div>`; return; }
             let html = `<table class="classic-table"><thead><tr>`;
-            if (currentTab === 'dm') {
-                html += `<th>TIMESTAMP</th><th>WEAPON UNIT</th><th>MODE TYPE</th><th>DAMAGE VALUE</th><th>ELIMINATIONS</th><th>INDEX_HASH</th>`;
-            } else if (currentTab === 'vzp') {
-                html += `<th>TIMESTAMP</th><th>NETWORK NODE</th><th>ELIMINATIONS</th><th>DEATH RECORDS</th><th>DAMAGE</th><th>INDEX_HASH</th>`;
-            } else {
-                html += `<th>TIMESTAMP</th><th>ZONE NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HS %</th><th>HIT %</th><th>INDEX_HASH</th>`;
-            }
+            if (currentTab === 'dm') html += `<th>TIMESTAMP</th><th>WEAPON</th><th>MODE</th><th>DAMAGE</th><th>KILLS</th><th>HASH</th>`;
+            else if (currentTab === 'vzp') html += `<th>TIMESTAMP</th><th>NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HASH</th>`;
+            else html += `<th>TIMESTAMP</th><th>ZONE NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HS %</th><th>HIT %</th><th>HASH</th>`;
             html += `</tr></thead><tbody>`;
             data.forEach(x => {
                 html += `<tr><td>${x.date} // ${x.time}</td>`;
-                if(currentTab === 'dm') html += `<td>${x.weapon}</td><td>${x.type}</td><td>${x.damage} HP</td><td>${x.kills}</td>`;
+                if(currentTab === 'dm') html += `<td>${x.weapon} <span style='color:var(--accent); font-size:10px;'>${getWeaponIcon(x.weapon)}</span></td><td>${x.type}</td><td>${x.damage} HP</td><td>${x.kills}</td>`;
                 else if(currentTab === 'vzp') html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td>`;
                 else html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td><td>${x.hs}</td><td>${x.hit}</td>`;
                 html += `<td><button class="delete-line-btn" onclick="deleteClassicLine('${currentTab}', '${x.id}')">[ ERASE ]</button></td></tr>`;
@@ -528,23 +573,18 @@
             html += `</tbody></table>`; container.innerHTML = html;
         }
 
-        // VIEW RENDERING: GRAPH WEBMESH INTERFACE
         function resizeCanvas() { if(config.ui !== 'mesh') return; canvas.width = document.getElementById('viewport-mesh').clientWidth; canvas.height = document.getElementById('viewport-mesh').clientHeight; }
         
         function buildGraph() {
-            if(config.ui !== 'mesh') return;
-            nodes = []; links = []; dataPackets = []; const cx = canvas.width / 2; const cy = canvas.height / 2;
-
+            if(config.ui !== 'mesh') return; nodes = []; links = []; dataPackets = []; const cx = canvas.width / 2; const cy = canvas.height / 2;
             if (currentTab === 'dm') {
                 let rootNode = { id: 'dm_root', label: `MATRIX CORE`, type: 'root', x: cx, y: cy, fx: cx, fy: cy }; nodes.push(rootNode);
                 let weapons = [...new Set(db.dm.map(x => x.weapon))];
                 weapons.forEach((wpn, wIdx) => {
-                    let wNode = { id: `w_${wpn}`, label: wpn, type: 'core', x: cx + (wIdx - (weapons.length-1)/2)*280, y: cy - 120 };
-                    nodes.push(wNode); links.push({ source: rootNode, target: wNode });
+                    let wNode = { id: `w_${wpn}`, label: `${wpn} ${getWeaponIcon(wpn)}`, type: 'core', x: cx + (wIdx - (weapons.length-1)/2)*280, y: cy - 120 }; nodes.push(wNode); links.push({ source: rootNode, target: wNode });
                     let modes = ['FULL DM', '1X1 DM'];
                     modes.forEach((md, mIdx) => {
-                        let mNode = { id: `m_${wpn}_${md}`, label: md, type: 'subcore', x: wNode.x + (mIdx === 0 ? -100 : 100), y: cy - 20 };
-                        nodes.push(mNode); links.push({ source: wNode, target: mNode });
+                        let mNode = { id: `m_${wpn}_${md}`, label: md, type: 'subcore', x: wNode.x + (mIdx === 0 ? -100 : 100), y: cy - 20 }; nodes.push(mNode); links.push({ source: wNode, target: mNode });
                         let logs = db.dm.filter(x => x.weapon === wpn && x.type === md);
                         logs.forEach((lg, lIdx) => {
                             let perf = lg.type === 'FULL DM' ? (lg.damage > 550 ? 'high' : 'low') : (lg.kills >= 5 ? 'high' : 'low');
@@ -575,11 +615,8 @@
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n1 = nodes[i]; let n2 = nodes[j];
-                    let dx = n2.x - n1.x; let dy = n2.y - n1.y; let dist = Math.hypot(dx, dy) || 1;
-                    let minDist = n1.type === 'datapoint' ? 65 : 130;
-                    if (dist < minDist) {
-                        let force = (minDist - dist) * 0.02; n1.x -= (dx / dist) * force; n1.y -= (dy / dist) * force; n2.x += (dx / dist) * force; n2.y += (dy / dist) * force;
-                    }
+                    let dx = n2.x - n1.x; let dy = n2.y - n1.y; let dist = Math.hypot(dx, dy) || 1; let minDist = n1.type === 'datapoint' ? 65 : 130;
+                    if (dist < minDist) { let force = (minDist - dist) * 0.02; n1.x -= (dx / dist) * force; n1.y -= (dy / dist) * force; n2.x += (dx / dist) * force; n2.y += (dy / dist) * force; }
                 }
             }
             links.forEach(link => {
@@ -594,18 +631,29 @@
             if(config.ui !== 'mesh') return; ctx.clearRect(0, 0, canvas.width, canvas.height);
             let accentColor = document.documentElement.style.getPropertyValue('--accent').trim() || '#ff003c';
 
+            // ИНТЕРАКТИВНЫЙ ФОН: РАДАРНАЯ КООРДИНАТНАЯ СЕТКА (Пункт 5)
+            ctx.save();
+            ctx.strokeStyle = `${accentColor}06`; ctx.lineWidth = 1;
+            let gridSpacing = 60;
+            let offsetX = (transform.x + (mouseGlobal.x * 0.05)) % gridSpacing;
+            let offsetY = (transform.y + (mouseGlobal.y * 0.05)) % gridSpacing;
+            for (let x = offsetX; x < canvas.width; x += gridSpacing) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+            for (let y = offsetY; y < canvas.height; y += gridSpacing) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+            // Центральные визирные круги радара
+            ctx.beginPath(); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 150, 0, Math.PI*2);
+            ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 300, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.restore();
+
             ctx.save(); ctx.translate(transform.x, transform.y); ctx.scale(transform.zoom, transform.zoom);
 
-            // КРУГОВАЯ ВОЛНА ИМПУЛЬСА ОТ ЯДРА (Ping Radar Waves)
             pulseRadius += 1.5; if (pulseRadius > 500) pulseRadius = 0;
             let rootNode = nodes.find(n => n.type === 'root') || nodes.find(n => n.type === 'core');
             if (rootNode) {
                 ctx.beginPath(); ctx.arc(rootNode.x, rootNode.y, pulseRadius, 0, Math.PI*2);
-                ctx.strokeStyle = `${accentColor}${Math.floor((1 - pulseRadius/500)*35).toString(16).padStart(2,'0')}`;
-                ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.strokeStyle = `${accentColor}${Math.floor((1 - pulseRadius/500)*35).toString(16).padStart(2,'0')}`; ctx.lineWidth = 1.5; ctx.stroke();
             }
 
-            // Межвекторные фоновые связи ("Кибер-паутина")
             for (let i = 0; i < nodes.length; i++) {
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n1 = nodes[i]; let n2 = nodes[j];
@@ -613,20 +661,17 @@
                         let d = Math.hypot(n2.x - n1.x, n2.y - n1.y);
                         if(d < 110) {
                             ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y);
-                            ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.lineWidth = 0.5; ctx.stroke();
+                            ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.stroke();
                         }
                     }
                 }
             }
 
-            // Основные каналы графа
             links.forEach(l => {
                 ctx.beginPath(); ctx.moveTo(l.source.x, l.source.y); ctx.lineTo(l.target.x, l.target.y);
-                ctx.strokeStyle = l.target.type === 'datapoint' ? `${accentColor}22` : `${accentColor}66`;
-                ctx.lineWidth = l.target.type === 'datapoint' ? 1 : 1.5; ctx.stroke();
+                ctx.strokeStyle = l.target.type === 'datapoint' ? `${accentColor}22` : `${accentColor}66`; ctx.stroke();
             });
 
-            // Пакеты данных
             dataPackets.forEach(p => {
                 p.progress += p.speed; if (p.progress > 1) p.progress = 0;
                 let pkX = p.link.source.x + (p.link.target.x - p.link.source.x) * p.progress;
@@ -634,7 +679,6 @@
                 ctx.beginPath(); ctx.arc(pkX, pkY, 2.5, 0, Math.PI*2); ctx.fillStyle = accentColor; ctx.fill();
             });
 
-            // Узлы системы
             nodes.forEach(n => {
                 ctx.beginPath(); let radius = 4.5; let color = '#fff';
                 if (n.type === 'root') { radius = 9; color = accentColor; }
@@ -642,22 +686,14 @@
                 else if (n.type === 'subcore') { radius = 5.5; color = '#555'; }
                 else if (n.type === 'datapoint') {
                     radius = 3.5;
-                    if (n.threat === 'high') color = '#00ff66';
-                    else if (n.threat === 'low') color = '#202020';
-                    else color = '#ff9900';
+                    if (n.threat === 'high') color = '#00ff66'; else if (n.threat === 'low') color = '#202020'; else color = '#ff9900';
                 }
-                
-                // Подсвечивание нод при прохождении волны импульса
-                let dToPulse = rootNode ? Math.hypot(n.x - rootNode.x, n.y - rootNode.y) : 0;
-                if (Math.abs(dToPulse - pulseRadius) < 15 && n.type === 'datapoint') { radius += 1.5; ctx.shadowBlur = 8; ctx.shadowColor = color; }
-
                 if (hoveredNode === n) { radius += 2.5; ctx.shadowBlur = 12; ctx.shadowColor = color; }
                 ctx.arc(n.x, n.y, radius, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill(); ctx.shadowBlur = 0;
                 ctx.fillStyle = n.type === 'datapoint' ? '#444' : '#fff';
                 ctx.font = '9px Consolas'; ctx.fillText(n.label, n.x + radius + 5, n.y + 3);
             });
 
-            // Эффекты частиц клика
             for (let i = clickParticles.length - 1; i >= 0; i--) {
                 let p = clickParticles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.03;
                 if (p.alpha <= 0) { clickParticles.splice(i, 1); continue; }
@@ -667,22 +703,14 @@
         }
 
         function updateLoop() { updatePhysics(); drawGraph(); requestAnimationFrame(updateLoop); }
-
-        // MOUSE AND ZOOM TRACKING
         function getCanvasMousePos(e) { const rect = canvas.getBoundingClientRect(); return { x: (e.clientX - rect.left - transform.x) / transform.zoom, y: (e.clientY - rect.top - transform.y) / transform.zoom }; }
         
-        window.addEventListener('click', (e) => {
-            if(config.ui !== 'mesh') return; const rect = canvas.getBoundingClientRect();
-            if(e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
-                const m = getCanvasMousePos(e);
-                for(let i=0; i<6; i++) { clickParticles.push({ x: m.x, y: m.y, vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, r: 1+Math.random()*1.5, alpha: 1 }); }
-            }
-        });
+        window.addEventListener('mousemove', e => { mouseGlobal.x = e.clientX; mouseGlobal.y = e.clientY; });
 
         canvas.addEventListener('mousedown', e => {
             if(config.ui !== 'mesh') return; const m = getCanvasMousePos(e); let clicked = null;
             for (let n of nodes) { if (Math.hypot(n.x - m.x, n.y - m.y) < 15) { clicked = n; break; } }
-            if (clicked) { draggedNode = clicked; } else { isPanning = true; panStart.x = e.clientX - transform.x; panStart.y = e.clientY - transform.y; }
+            if (clicked) draggedNode = clicked; else { isPanning = true; panStart.x = e.clientX - transform.x; panStart.y = e.clientY - transform.y; }
         });
 
         canvas.addEventListener('mousemove', e => {
@@ -696,20 +724,20 @@
             if (hoveredNode && hoveredNode.type === 'datapoint') {
                 let data = hoveredNode.rawData; let html = '';
                 if (hoveredNode.category === 'dm') {
-                    html = `<div class="node-title">${data.weapon}</div>
+                    html = `<div class="node-title">${data.weapon} ${getWeaponIcon(data.weapon)}</div>
                             <div class="data-row"><span class="field">MODE:</span><span class="val">${data.type}</span></div>
-                            <div class="data-row"><span class="field">VALUE:</span><span class="val ${hoveredNode.threat==='high'?'high':''}">${data.type==='FULL DM'?data.damage+' HP':data.kills+' K'}</span></div>`;
+                            <div class="data-row"><span class="field">RESULT:</span><span class="val ${hoveredNode.threat==='high'?'high':''}">${data.type==='FULL DM'?data.damage+' HP':data.kills+' KILLS'}</span></div>`;
                 } else {
                     let kd = data.deaths === 0 ? data.kills.toFixed(2) : (data.kills / data.deaths).toFixed(2);
                     html = `<div class="node-title">${hoveredNode.category.toUpperCase()} NODE</div>
                             <div class="data-row"><span class="field">GRID:</span><span class="val">${data.server}</span></div>
-                            <div class="data-row"><span class="field">K/D:</span><span class="val ${kd>=2?'high':''}">${kd}</span></div>
+                            <div class="data-row"><span class="field">K/D RATIO:</span><span class="val ${kd>=2?'high':''}">${kd}</span></div>
                             <div class="data-row"><span class="field">DAMAGE:</span><span class="val">${data.damage} HP</span></div>`;
                 }
                 tooltip.innerHTML = html; tooltip.style.display = 'block';
                 tooltip.style.left = (e.clientX - canvas.getBoundingClientRect().left + 15) + 'px';
                 tooltip.style.top = (e.clientY - canvas.getBoundingClientRect().top + 15) + 'px';
-            } else { tooltip.style.display = 'none'; }
+            } else tooltip.style.display = 'none';
         });
 
         window.addEventListener('mouseup', () => { draggedNode = null; isPanning = false; });
@@ -722,15 +750,73 @@
                 let idx = db[target.category].findIndex(x => x.id === target.id);
                 if(idx !== -1) db[target.category].splice(idx, 1);
                 document.getElementById('osintTooltip').style.display = 'none';
-                playSound('wipe'); pushLog('DESTROY', 'DELETED NODE LOG FROM CANV MESH'); saveDB();
+                playSound('wipe'); pushLog('DESTROY', 'ERASED WEBMESH NODE'); saveDB();
             }
         });
 
-        // COUNTDOWN TIMER
+        // КАРТИНКА-ШАБЛОН СЕКРЕТНОГО ДОСЬЕ (Пункт 4)
+        function generateBlackFileCard() {
+            playSound('success');
+            let td = 0, tk = 0, det = 0;
+            db.dm.forEach(i => { td += i.damage; tk += i.kills; });
+            db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
+            db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
+            let kd = det === 0 ? tk.toFixed(2) : (tk / det).toFixed(2);
+
+            // Создаем временный холст для рендеринга шаблона
+            const expCanvas = document.createElement('canvas'); expCanvas.width = 500; expCanvas.height = 360;
+            const eCtx = expCanvas.getContext('2d');
+            let clr = document.documentElement.style.getPropertyValue('--accent').trim() || '#ff003c';
+
+            // Фон
+            eCtx.fillStyle = '#050505'; eCtx.fillRect(0, 0, 500, 360);
+            // Сетка фона
+            eCtx.strokeStyle = 'rgba(255,255,255,0.02)'; eCtx.lineWidth = 1;
+            for(let x=0; x<500; x+=25){ eCtx.beginPath(); eCtx.moveTo(x,0); eCtx.lineTo(x,360); eCtx.stroke(); }
+            for(let y=0; y<360; y+=25){ eCtx.beginPath(); eCtx.moveTo(0,y); eCtx.lineTo(500,y); eCtx.stroke(); }
+
+            // Внешняя кибер-рамка
+            eCtx.strokeStyle = clr; eCtx.lineWidth = 2; eCtx.strokeRect(15, 15, 470, 330);
+            eCtx.fillStyle = clr; eCtx.fillRect(10, 10, 15, 4); eCtx.fillRect(10, 10, 4, 15);
+
+            // Заголовок документа
+            eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText("=== CLASSIFIED CYBER INTELLIGENCE REPORT ===", 35, 45);
+            eCtx.fillStyle = clr; eCtx.font = '10px Consolas'; eCtx.fillText(`SUBJECT OPERATIVE: TERRY // IDENTITY CERTIFIED`, 35, 65);
+            eCtx.fillText(`SYSTEM REAPER SECTOR: ${currentTab.toUpperCase()}_GRID`, 35, 80);
+            
+            eCtx.strokeStyle = 'rgba(255,0,60,0.2)'; eCtx.lineWidth = 1; eCtx.beginPath(); eCtx.moveTo(35, 95); eCtx.lineTo(465, 95); eCtx.stroke();
+
+            // Данные статистики
+            eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("TOTAL DAMAGE INFLICTED:", 40, 130);
+            eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText(`${td} HP`, 260, 130);
+
+            eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("CONFIRMED ELIMINATIONS:", 40, 165);
+            eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText(`${tk} KILLS`, 260, 165);
+
+            eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("OPERATIONAL K/D INDEX:", 40, 200);
+            eCtx.fillStyle = clr; eCtx.font = 'bold 16px Consolas'; eCtx.fillText(`${kd}`, 260, 200);
+
+            // Оценка угрозы
+            let level = kd >= 2.0 ? "CRITICAL // CYBER_ASSASSIN" : "NORMAL // NET_RUNNER";
+            eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("THREAT ASSIGNMENT RATE:", 40, 245);
+            eCtx.fillStyle = kd >= 2.0 ? '#00ff66' : '#ff9900'; eCtx.font = 'bold 12px Consolas'; eCtx.fillText(level, 260, 245);
+
+            // Подвал
+            eCtx.strokeStyle = 'rgba(255,0,60,0.2)'; eCtx.beginPath(); eCtx.moveTo(35, 280); eCtx.lineTo(465, 280); eCtx.stroke();
+            eCtx.fillStyle = '#333'; eCtx.font = '9px Consolas';
+            eCtx.fillText(`TIMESTAMP: ${new Date().toLocaleString()} // SECURE_LINK`, 40, 305);
+            eCtx.fillText("NEXUS REAPER PROTOCOL GENERATION V4.0. DESTROY AFTER READING.", 40, 320);
+
+            // Скачивание готовой картинки
+            const link = document.createElement('a'); link.download = `BLACK_FILE_TERRY_${currentTab.toUpperCase()}.png`;
+            link.href = expCanvas.toDataURL(); link.click();
+            pushLog('EXPORT', 'BLACK_FILE GRAPHIC OVERLAY EXPORTED.');
+        }
+
+        // TIMER SYSTEMS
         function startCustomTimer() {
             let iv = parseInt(document.getElementById('custom-minutes').value); if (!iv || iv <= 0) return;
             playSound('success'); clearInterval(countdownInterval); document.getElementById('timer-box').classList.remove('alert'); let sec = iv * 60;
-            pushLog('TIMER', `COUNTDOWN RE-ARMED FOR ${iv} MINUTES`);
             countdownInterval = setInterval(() => {
                 sec--; let m = Math.floor(sec / 60); let s = sec % 60;
                 document.getElementById('timer-display').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
