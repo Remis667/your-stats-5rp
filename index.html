@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERRY // NEXUS REAPER v4.6</title>
+    <title>TERRY // NEXUS REAPER v4.7</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -174,47 +174,81 @@
         .close-modal-btn { background: transparent; border: 1px solid #333; color: #fff; width: 100%; padding: 8px; margin-top: 10px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
         .close-modal-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* ГИПЕР-ДИЗАЙН ДЛЯ ПОЛЗУНКОВ (RANGE CUSTOM INPUTS) */
+        /* 🔥 УЛЬТРА-ЖЕСТКИЙ ПЛАВНЫЙ ГИПЕРДИЗАЙН ПОЛЗУНКОВ 🔥 */
         input[type="range"].cyber-slider {
             -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
             width: 100%;
             background: transparent;
             cursor: pointer;
-            height: 24px;
+            height: 20px;
+            margin: 5px 0;
         }
+        
         input[type="range"].cyber-slider:focus {
             outline: none;
         }
-        /* Линия трека ползунка */
+
+        /* Линия трека (Webkit) */
         input[type="range"].cyber-slider::-webkit-slider-runnable-track {
             width: 100%;
             height: 4px;
-            background: #0d0d0d;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.2s;
+            background: #0a0a0c;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 0px;
+            transition: background 0.3s ease;
         }
-        /* Сам бегунок (Thumb) */
+
+        /* Ползунок-бегунок (Webkit) */
         input[type="range"].cyber-slider::-webkit-slider-thumb {
-            height: 14px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 16px;
             width: 8px;
             background: #ffffff;
             border: 1px solid var(--accent);
-            box-shadow: 0 0 8px var(--accent-glow);
-            cursor: pointer;
-            -webkit-appearance: none;
+            box-shadow: 0 0 10px var(--accent-glow);
             margin-top: -6px;
-            transition: transform 0.1s, background-color 0.2s;
+            border-radius: 0px;
+            cursor: pointer;
+            transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s;
         }
-        input[type="range"].cyber-slider:active::-webkit-slider-thumb {
-            transform: scaleY(1.2);
+
+        input[type="range"].cyber-slider:hover::-webkit-slider-thumb {
             background: var(--accent);
+            transform: scale(1.1);
         }
-        /* Стили трека для Firefox */
+
+        input[type="range"].cyber-slider:active::-webkit-slider-thumb {
+            transform: scaleY(1.3) scaleX(0.9);
+            background: #ffffff;
+            box-shadow: 0 0 15px #ffffff;
+        }
+
+        /* Линия трека (Firefox) */
         input[type="range"].cyber-slider::-moz-range-track {
-            width: 100%; height: 4px; background: #0d0d0d; border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            height: 4px;
+            background: #0a0a0c;
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
+
+        /* Ползунок-бегунок (Firefox) */
         input[type="range"].cyber-slider::-moz-range-thumb {
-            height: 14px; width: 8px; background: #fff; border: 1px solid var(--accent); cursor: pointer;
+            -moz-appearance: none;
+            appearance: none;
+            height: 16px;
+            width: 8px;
+            background: #ffffff;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+            border-radius: 0px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        input[type="range"].cyber-slider:active::-moz-range-thumb {
+            transform: scaleY(1.3);
         }
 
         .osint-tooltip {
@@ -247,7 +281,7 @@
 
     <div id="boot-screen">
         <div class="boot-loader">
-            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.6...<br></div>
+            <div id="boot-logs">INIT SECURE TERRY_NEXUS MATRIX v4.7...<br></div>
             <div class="progress-bar-container"><div class="progress-fill" id="boot-progress"></div></div>
         </div>
     </div>
@@ -267,7 +301,7 @@
     </div>
 
     <div class="top-bar">
-        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.6</div>
+        <div class="title" onclick="pushLog('CORE_CONN', 'PING SENT TO MASTER MATRIX GRID')">ROOT@TERRY:_# NEXUS_REAPER_v4.7</div>
         <div class="header-actions">
             <div class="profile-badge">OPERATIVE: <span id="profile-display-name">DARK_CRYPTO</span></div>
             <button class="settings-btn" onclick="toggleModal(true)">[ SETTINGS_ ]</button>
@@ -316,9 +350,12 @@
                     <select id="dm-weapon">
                         <option value="SPECIAL RIFLE">SPECIAL RIFLE ︻╦╤─</option>
                         <option value="REVOLVER">REVOLVER ▄︻デ╤═─</option>
+                        <option value="HEAVY RIFLE">HEAVY RIFLE ︻╦̵̵͇̿̿̿̿╤──</option>
                     </select>
                     <select id="dm-type" onchange="updateDmFields()"><option value="FULL DM">FULL DM</option><option value="1X1 DM">1X1 DM</option></select>
                     <div id="dm-dynamic-container" style="display: flex; flex:1;"><input type="number" id="dm-damage" placeholder="DAMAGE"></div>
+                    <input type="number" id="dm-body-pct" placeholder="BODY %" max="100" style="max-width:80px;">
+                    <input type="number" id="dm-head-pct" placeholder="HEAD %" max="100" style="max-width:80px;">
                     <button class="action-btn" onclick="addDmLog()">+</button>
                 </div>
                 <div id="panel-vzp" class="input-group" style="display:none;">
@@ -336,8 +373,8 @@
         </div>
 
         <div class="ocr-drop-zone" id="ocr-zone" onclick="document.getElementById('ocr-file-input').click()">
-            <div class="title-ocr">[ DROP_DM_SCREENSHOT_HERE ]</div>
-            <div class="subtitle-ocr" id="ocr-status-text">ИЛИ КЛИКНИ / CTRL+V ИЗ БУФЕРА</div>
+            <div class="title-ocr">[ INJECT_MATCH_SCREENSHOT ]</div>
+            <div class="subtitle-ocr" id="ocr-status-text">КЛИКНИ / CTRL+V ИЗ БУФЕРА ОБМЕНА</div>
             <input type="file" id="ocr-file-input" style="display:none;" accept="image/*" onchange="handleOcrFile(this.files[0])">
             <div class="ocr-progress-inner" id="ocr-progress-bar"></div>
         </div>
@@ -355,7 +392,6 @@
         </div>
 
         <div class="terminal-log-panel" id="term-logs"></div>
-
         <div class="osint-tooltip" id="osintTooltip"></div>
         <div class="map-instruction" id="instructions-box">
             [ MOUSE: <span>DRAG/ZOOM</span> // DBL-CLICK: <span>ERASE NODE</span> ]<br>
@@ -465,18 +501,26 @@
             }
         }
 
-        // ОБНОВЛЕННЫЙ ОПТИМИЗИРОВАННЫЙ ДВИЖОК СКАНЕРА (OCR TESSERACT v4.6)
+        // ОБНОВЛЕННЫЙ ПАРСЕР СКРИНШОТОВ С ВЫБОРОМ ОРУЖИЯ И ВЫЖАТИЕМ ПРОЦЕНТОВ ПОПАДАНИЙ
         async function handleOcrFile(file) {
             if (!file) return;
             playSound('click');
+            
+            // Запрашиваем у пользователя тип оружия для этого скриншота
+            let chosenWeapon = prompt("ВВЕДИТЕ НАЗВАНИЕ ОРУЖИЯ ДЛЯ ЭТОГО СКРИНШОТА:", "SPECIAL RIFLE");
+            if (chosenWeapon === null) {
+                pushLog('OCR_CANCEL', 'USER ABORTED EXTRACTION');
+                return;
+            }
+            chosenWeapon = chosenWeapon.trim().toUpperCase() || "SPECIAL RIFLE";
+
             const statusText = document.getElementById('ocr-status-text');
             const progressBar = document.getElementById('ocr-progress-bar');
-            statusText.innerText = "[CORE_ANALYZING_IMAGE...]";
-            pushLog('OCR_ENGINE', 'STARTING IMAGE MATRIX EXTRACTION');
+            statusText.innerText = "[ANALYZING_SCREENSHOT_DATA...]";
+            pushLog('OCR_ENGINE', 'DECRYPTING IMAGE GRID MATRIX');
 
             try {
                 const worker = await Tesseract.createWorker('rus+eng');
-                
                 worker.logger = (m) => {
                     if (m.status === 'recognizing text') {
                         let percent = Math.floor(m.progress * 100);
@@ -490,16 +534,13 @@
                 await worker.terminate();
 
                 progressBar.style.width = '0%';
-                statusText.innerText = "ИЛИ КЛИКНИ / CTRL+V ИЗ БУФЕРА";
+                statusText.innerText = "КЛИКНИ / CTRL+V ИЗ БУФЕРА ОБМЕНА";
 
-                // Очистка и нормализация эталонного имени пользователя
                 let cleanTarget = config.username.toUpperCase().replace(/[\s_\-\.]/g, '');
-                
                 let lines = text.split('\n');
                 let foundLine = null;
                 let totalLinesCount = 0;
 
-                // Поиск строки с совпадением
                 for (let l of lines) {
                     let cleanLine = l.replace(/[\s_\-\.]/g, '');
                     if (cleanLine.length > 3 && !cleanLine.includes('DMGLOW') && !cleanLine.includes('RELOAD')) {
@@ -512,48 +553,49 @@
                 }
 
                 if (foundLine) {
-                    // Извлекаем абсолютно все блоки цифр
                     let numbers = foundLine.match(/\d+/g);
-                    if (numbers && numbers.length >= 3) {
+                    if (numbers && numbers.length >= 2) {
                         let kills = parseInt(numbers[0]) || 0;
-                        let damage = parseInt(numbers[numbers.length - 1]) || 0;
+                        let damage = parseInt(numbers[1]) || 0;
+                        
+                        // Вытягиваем проценты попаданий: 3-е число это тело, 4-е это голова
+                        let bodyPct = 0;
+                        let headPct = 0;
+                        if (numbers.length >= 3) bodyPct = parseInt(numbers[2]) || 0;
+                        if (numbers.length >= 4) headPct = parseInt(numbers[3]) || 0;
 
-                        // Автоопределение типа матча (если строк много - FULL DM, если мало - 1X1)
                         let inferredType = totalLinesCount > 3 ? "FULL DM" : "1X1 DM";
 
                         db.dm.push({
                             id: Math.random().toString(36).substring(2, 11),
                             date: new Date().toLocaleDateString('ru-RU'),
                             time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}),
-                            weapon: "SPECIAL RIFLE",
+                            weapon: chosenWeapon,
                             type: inferredType,
                             damage: damage,
-                            kills: kills
+                            kills: kills,
+                            bodyPct: bodyPct,
+                            headPct: headPct
                         });
 
                         playSound('success');
                         triggerGlitchEvent();
-                        pushLog('OCR_SUCCESS', `EXTRACTED: ${kills} KILLS | ${damage} DMG | MODE: ${inferredType}`);
+                        pushLog('OCR_SUCCESS', `PARSED: ${kills}K | ${damage}D | B: ${bodyPct}% | H: ${headPct}%`);
                         
-                        // Сразу переключаем на вкладку DM, чтобы пользователь увидел результат
-                        if (currentTab !== 'dm') {
-                            switchTab('dm');
-                        } else {
-                            saveDB();
-                        }
+                        if (currentTab !== 'dm') switchTab('dm'); else saveDB();
                     } else {
-                        alert("СТРОКА НАЙДЕНА, НО СТАТИСТИКА КИЛЛОВ/УРОНА СМАЗАНА. ПОПРОБУЙТЕ ДРУГОЙ СКРИНШОТ.");
-                        pushLog('OCR_ERROR', 'FAILED TO PARSE NUMERIC DATA CHUNKS');
+                        alert("СТРОКА НАЙДЕНА, НО СТАТИСТИКА ЦИФР НЕ СЧИТАЛАСЬ. ПОПРОБУЙТЕ ДРУГОЙ СКРИН.");
+                        pushLog('OCR_ERROR', 'FAILED TO EXTRACT NUMERIC DATA');
                     }
                 } else {
-                    alert(`НИК ${config.username} НЕ ОБНАРУЖЕН НА СКРИНЕ. УБЕДИТЕСЬ, ЧТО ИМЯ В ПРОФИЛЕ СОВПАДАЕТ С ИГРОВЫМ.`);
-                    pushLog('OCR_FAIL', 'USER TARGET LOG NOT FOUND IN CAPTURED TEXT');
+                    alert(`НИК ${config.username} НЕ ОБНАРУЖЕН НА СКРИНЕ. ПРОВЕРЬТЕ ИМЯ В НАСТРОЙКАХ ПРОФИЛЯ.`);
+                    pushLog('OCR_FAIL', 'TARGET OPERATIVE NOT FOUND IN TEXT CHUNK');
                 }
 
             } catch (err) {
                 console.error(err);
                 statusText.innerText = "ОШИБКА РАСПОЗНАВАНИЯ";
-                pushLog('OCR_CRITICAL', 'ENGINE CORE ERROR');
+                pushLog('OCR_CRITICAL', 'ENGINE CRASH');
             }
         }
 
@@ -582,7 +624,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             const logsContainer = document.getElementById('boot-logs'); const progressFill = document.getElementById('boot-progress');
-            const lines = ["NEXUS CORE ENGINE v4.6 CAPTURED.", "OCR INTEL INJECTOR UPGRADED.", "SLIDER INTERFACES RE-WIRED."];
+            const lines = ["NEXUS HYPER ENGINE v4.7 UNLOCKED.", "SLIDER INTERFACES FORCE-COMPACTED.", "OCR HIT PERCENTAGES ROUTED."];
             let lineIdx = 0, prog = 0;
             let iv = setInterval(() => {
                 if (lineIdx < lines.length) { logsContainer.innerHTML += lines[lineIdx] + "<br>"; lineIdx++; }
@@ -679,7 +721,11 @@
             transform = { x: 0, y: 0, zoom: 1 }; saveDB();
         }
 
-        function getWeaponIcon(weapon) { return weapon === 'SPECIAL RIFLE' ? '︻╦╤─' : '▄︻デ╤═─'; }
+        function getWeaponIcon(weapon) { 
+            if (weapon.includes('REVOLVER') || weapon.includes('РЕВИК')) return '▄︻デ╤═─';
+            if (weapon.includes('HEAVY') || weapon.includes('ХЕВИК')) return '︻╦̵̵͇̿̿̿̿╤──';
+            return '︻╦╤─'; 
+        }
 
         function updateDmFields() {
             const m = document.getElementById('dm-type').value;
@@ -689,7 +735,10 @@
         function addDmLog() {
             const weapon = document.getElementById('dm-weapon').value; const type = document.getElementById('dm-type').value;
             let damage = parseInt(document.getElementById('dm-damage')?.value) || 0; let kills = parseInt(document.getElementById('dm-kills')?.value) || 0;
-            db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), weapon, type, damage, kills });
+            let bodyPct = parseInt(document.getElementById('dm-body-pct').value) || 0;
+            let headPct = parseInt(document.getElementById('dm-head-pct').value) || 0;
+            
+            db.dm.push({ id: Math.random().toString(36).substring(2, 11), date: new Date().toLocaleDateString('ru-RU'), time: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'}), weapon, type, damage, kills, bodyPct, headPct });
             playSound('success'); triggerGlitchEvent(); saveDB();
         }
 
@@ -721,8 +770,8 @@
             db.vzp.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             db.capt.forEach(i => { td += i.damage; tk += i.kills; det += i.deaths; });
             
-            let specCount = db.dm.filter(x => x.weapon === 'SPECIAL RIFLE').length;
-            let revCount = db.dm.filter(x => x.weapon === 'REVOLVER').length;
+            let specCount = db.dm.filter(x => x.weapon.includes('SPECIAL')).length;
+            let revCount = db.dm.filter(x => x.weapon.includes('REVOLVER') || x.weapon.includes('РЕВИК')).length;
             let bestWpnIcon = specCount === 0 && revCount === 0 ? '' : (specCount >= revCount ? ' ︻╦╤─' : ' ▄︻デ╤═─');
 
             document.getElementById('total-damage-val').innerHTML = `${td} <span>HP ${bestWpnIcon}</span>`;
@@ -740,13 +789,16 @@
             const container = document.getElementById('classic-table-container'); let data = db[currentTab];
             if (!data || data.length === 0) { container.innerHTML = `<div class="empty-classic">[ CELL STRUCTURE PROTOCOL EMPTY ]</div>`; return; }
             let html = `<table class="classic-table"><thead><tr>`;
-            if (currentTab === 'dm') html += `<th>TIMESTAMP</th><th>WEAPON</th><th>MODE</th><th>DAMAGE</th><th>KILLS</th><th>HASH</th>`;
+            if (currentTab === 'dm') html += `<th>TIMESTAMP</th><th>WEAPON</th><th>MODE</th><th>DAMAGE</th><th>KILLS</th><th>BODY / HEAD %</th><th>HASH</th>`;
             else if (currentTab === 'vzp') html += `<th>TIMESTAMP</th><th>NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HASH</th>`;
             else html += `<th>TIMESTAMP</th><th>ZONE NODE</th><th>KILLS</th><th>DEATHS</th><th>DAMAGE</th><th>HS %</th><th>HIT %</th><th>HASH</th>`;
             html += `</tr></thead><tbody>`;
             data.forEach(x => {
                 html += `<tr><td>${x.date} // ${x.time}</td>`;
-                if(currentTab === 'dm') html += `<td>${x.weapon} <span style='color:var(--accent); font-size:10px;'>${getWeaponIcon(x.weapon)}</span></td><td>${x.type}</td><td>${x.damage} HP</td><td>${x.kills}</td>`;
+                if(currentTab === 'dm') {
+                    let bPct = x.bodyPct || 0; let hPct = x.headPct || 0;
+                    html += `<td>${x.weapon} <span style='color:var(--accent); font-size:10px;'>${getWeaponIcon(x.weapon)}</span></td><td>${x.type}</td><td>${x.damage} HP</td><td>${x.kills}</td><td>B: ${bPct}% / H: ${hPct}%</td>`;
+                }
                 else if(currentTab === 'vzp') html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td>`;
                 else html += `<td>${x.server}</td><td>${x.kills}</td><td>${x.deaths}</td><td>${x.damage} HP</td><td>${x.hs}</td><td>${x.hit}</td>`;
                 html += `<td><button class="delete-line-btn" onclick="deleteClassicLine('${currentTab}', '${x.id}')">[ ERASE ]</button></td></tr>`;
@@ -817,7 +869,6 @@
             let gridSpacing = 60; let offsetX = (transform.x + (mouseGlobal.x * 0.05)) % gridSpacing; let offsetY = (transform.y + (mouseGlobal.y * 0.05)) % gridSpacing;
             for (let x = offsetX; x < canvas.width; x += gridSpacing) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
             for (let y = offsetY; y < canvas.height; y += gridSpacing) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
-            ctx.beginPath(); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 150, 0, Math.PI*2); ctx.arc(canvas.width/2 + transform.x*0.1, canvas.height/2 + transform.y*0.1, 300, 0, Math.PI*2); ctx.stroke();
             ctx.restore();
 
             ctx.save(); ctx.translate(transform.x, transform.y); ctx.scale(transform.zoom, transform.zoom);
@@ -827,16 +878,6 @@
             if (rootNode) {
                 ctx.beginPath(); ctx.arc(rootNode.x, rootNode.y, pulseRadius, 0, Math.PI*2);
                 ctx.strokeStyle = `${accentColor}${Math.floor((1 - pulseRadius/500)*35).toString(16).padStart(2,'0')}`; ctx.lineWidth = 1.5; ctx.stroke();
-            }
-
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    let n1 = nodes[i]; let n2 = nodes[j];
-                    if(n1.type === 'datapoint' && n2.type === 'datapoint') {
-                        let d = Math.hypot(n2.x - n1.x, n2.y - n1.y);
-                        if(d < 110) { ctx.beginPath(); ctx.moveTo(n1.x, n1.y); ctx.lineTo(n2.x, n2.y); ctx.strokeStyle = `${accentColor}${Math.floor((1 - d/110)*15).toString(16).padStart(2,'0')}`; ctx.stroke(); }
-                    }
-                }
             }
 
             links.forEach(l => {
@@ -889,8 +930,10 @@
             if (hoveredNode && hoveredNode.type === 'datapoint') {
                 let data = hoveredNode.rawData; let html = '';
                 if (hoveredNode.category === 'dm') {
-                    html = `<div class="node-title">${data.weapon} ${getWeaponIcon(data.weapon)}</div>
+                    let bPct = data.bodyPct || 0; let hPct = data.headPct || 0;
+                    html = `<div class="node-title">${data.weapon}</div>
                             <div class="data-row"><span class="field">MODE:</span><span class="val">${data.type}</span></div>
+                            <div class="data-row"><span class="field">BODY / HEAD:</span><span class="val">${bPct}% / ${hPct}%</span></div>
                             <div class="data-row"><span class="field">RESULT:</span><span class="val ${hoveredNode.threat==='high'?'high':''}">${data.type==='FULL DM'?data.damage+' HP':data.kills+' KILLS'}</span></div>`;
                 } else {
                     let kd = data.deaths === 0 ? data.kills.toFixed(2) : (data.kills / data.deaths).toFixed(2);
@@ -931,7 +974,7 @@
 
             eCtx.strokeStyle = clr; eCtx.lineWidth = 2; eCtx.strokeRect(15, 15, 470, 330);
             eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText("=== CLASSIFIED CYBER INTELLIGENCE REPORT ===", 35, 45);
-            eCtx.fillStyle = clr; eCtx.font = '10px Consolas'; eCtx.fillText(`SUBJECT OPERATIVE: ${config.username} // IDENTITY CERTIFIED`, 35, 65);
+            eCtx.fillStyle = clr; eCtx.font = '10px Consolas'; eCtx.fillText(`OPERATIVE ID: ${config.username}`, 35, 65);
             
             eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("TOTAL DAMAGE INFLICTED:", 40, 130);
             eCtx.fillStyle = '#fff'; eCtx.font = 'bold 14px Consolas'; eCtx.fillText(`${td} HP`, 260, 130);
@@ -940,8 +983,8 @@
             eCtx.fillStyle = '#666'; eCtx.font = '11px Consolas'; eCtx.fillText("OPERATIONAL K/D INDEX:", 40, 200);
             eCtx.fillStyle = clr; eCtx.font = 'bold 16px Consolas'; eCtx.fillText(`${kd}`, 260, 200);
 
-            const link = document.createElement('a'); link.download = `BLACK_FILE_${config.username}_${currentTab.toUpperCase()}.png`;
-            link.href = expCanvas.toDataURL(); link.click(); pushLog('EXPORT', 'BLACK_FILE GRAPHIC OVERLAY EXPORTED.');
+            const link = document.createElement('a'); link.download = `BLACK_FILE_${config.username}.png`;
+            link.href = expCanvas.toDataURL(); link.click(); pushLog('EXPORT', 'BLACK_FILE GENERATED.');
         }
 
         function startCustomTimer() {
