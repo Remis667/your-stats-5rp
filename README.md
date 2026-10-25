@@ -19,6 +19,11 @@ Scroll down to descend and reveal explanations; scroll up to return. Language fo
 - `index.html`: surface, depth indicator, ending.
 - `style.css`: landscape, pixel illustrations, sticky scenes, reduced motion.
 - `app.js`: bilingual chapter data, inline SVG artwork, depth mapping and scroll progression.
+- `geology.js`: deterministic pixel geology, strata, fractures, roots and mineral inclusions.
 - `status.md`: implementation and validation progress.
 
-Distances are intentionally compressed nonlinearly. The shaft, colors, mineral drawings and flow diagrams are illustrative. Layer boundaries and temperatures vary; chapter notes identify approximations and reference sources. No real borehole reaches the mantle or core.
+Distances are intentionally compressed nonlinearly. The colors, mineral drawings and flow diagrams are illustrative. Layer boundaries and temperatures vary; chapter notes identify approximations and reference sources. No real borehole reaches the mantle or core.
+
+## Geological visual update
+
+The scroll path is about twice as long. Native scrolling is preserved. A decorative low-resolution canvas paints detailed geological textures locally; camera zoom and drift are driven by scroll position. Reduced motion disables camera transforms. There is no central shaft.
